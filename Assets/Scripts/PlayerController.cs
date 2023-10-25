@@ -1,5 +1,7 @@
 using UnityEngine;
 using Spine.Unity;
+using System.Collections;
+using CharacterEnums;
 
 public class PlayerController : MonoBehaviour
 {
@@ -13,11 +15,20 @@ public class PlayerController : MonoBehaviour
     private CharacterState previousState;
     private bool isAttacking = false;
 
-    public enum Direction { Front, Back, Side };
+    public SwordController swordController;
+    public GameObject frontPivot;
+    public GameObject backPivot;
+    public GameObject rightPivot;
+    public GameObject defaultPivot;
+
+    private float attackCooldown = 1f; // Cooldown period in seconds
+    private float nextAttackTime = 0f; // Time when the next attack can be performed
+
 
     private void Start()
     {
         if (skeletonAnimation == null) Debug.LogError("skeletonAnimation is not assigned!");
+        if (swordController == null) Debug.LogError("swordController is not assigned!");
         targetPosition = transform.position;
         skeletonAnimation.AnimationState.Complete += HandleAnimationEnd;
     }
@@ -30,11 +41,14 @@ public class PlayerController : MonoBehaviour
             currentState = CharacterState.Run;
         }
 
-        if (Input.GetMouseButtonDown(0) && !isAttacking) // Left mouse button clicked
+        if (Input.GetMouseButtonDown(0) && !isAttacking && Time.time >= nextAttackTime) // Left mouse button clicked
         {
             SetNewTargetPosition();
             currentState = CharacterState.Run;
             Attack();
+
+            // Set the time for the next attack
+            nextAttackTime = Time.time + attackCooldown;
         }
 
         if (currentState == CharacterState.Run)
@@ -106,6 +120,24 @@ public class PlayerController : MonoBehaviour
     {
         isAttacking = true;
         currentState = CharacterState.Attack;
+
+        // Start the swing sword coroutine
+        StartCoroutine(swordController.SwingSword(lastDirection, frontPivot, backPivot, rightPivot, defaultPivot));
+
+        // Start the attack timeout coroutine
+        StartCoroutine(AttackTimeout());
+    }
+
+
+    private IEnumerator AttackTimeout()
+    {
+        yield return new WaitForSeconds(0.4f); // Adjust to match the actual duration of your attack animation
+        if (currentState == CharacterState.Attack)
+        {
+            Debug.LogWarning("Attack animation did not complete. Reverting to Idle state.");
+            isAttacking = false;
+            currentState = CharacterState.Idle;
+        }
     }
 
     private Direction DetermineDirection(Vector3 targetPosition)
@@ -133,6 +165,7 @@ public class PlayerController : MonoBehaviour
     {
         string stateName = null;
         bool loop = true;
+
         switch (currentState)
         {
             case CharacterState.Idle:
@@ -140,12 +173,19 @@ public class PlayerController : MonoBehaviour
                 break;
             case CharacterState.Run:
                 stateName = lastDirection.ToString().ToLower() + "_run";
+                // Check if the new direction is the same as the last direction
+                // and if the character is currently running
+                if (skeletonAnimation.AnimationState.GetCurrent(0).Animation.Name == stateName)
+                {
+                    return; // Ignore setting the new animation
+                }
                 break;
             case CharacterState.Attack:
                 stateName = lastDirection.ToString().ToLower() + "_attack";
                 loop = false;
                 break;
         }
+
         Debug.Log(stateName);
         skeletonAnimation.AnimationState.SetAnimation(0, stateName, loop);
     }
