@@ -7,8 +7,8 @@ public class SwordController : MonoBehaviour
     public SwordTrail swordTrail;
     public IEnumerator SwingSword(Direction attackDirection, GameObject frontPivot, GameObject backPivot, GameObject rightPivot, GameObject defaultPivot)
     {
-        float totalSwingDuration = 0.35f;
-        float anticipationDuration = 0.01f; // adjust this to a lower value
+        float totalSwingDuration = 0.3f;
+        float anticipationDuration = 0.02f; // adjust this to a lower value
         float swingDuration = (totalSwingDuration - anticipationDuration*2) / 3;
 
         GameObject pivot = frontPivot;
