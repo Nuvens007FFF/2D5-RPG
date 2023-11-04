@@ -186,7 +186,7 @@ public class PlayerController : MonoBehaviour
                 break;
         }
 
-        Debug.Log(stateName);
+        //Debug.Log(stateName);
         skeletonAnimation.AnimationState.SetAnimation(0, stateName, loop);
     }
 }

@@ -1,7 +1,7 @@
 {
-    "coinRequired": 10,
+    "coinRequired": 137.85850524902345,
     "maxStat": 30.0,
     "statPlus": 1.0,
-    "currentStatPlus": 0.0,
+    "currentStatPlus": 10.0,
     "percentRise": 0.30000001192092898
 }
