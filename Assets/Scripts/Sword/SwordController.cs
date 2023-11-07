@@ -5,6 +5,30 @@ using CharacterEnums;
 public class SwordController : MonoBehaviour
 {
     public SwordParticleSystemTrail swordTrail;
+    private Collider2D weaponCollider;
+
+    private void Start()
+    {
+        // Get the Collider2D component on the weapon GameObject
+        weaponCollider = GetComponent<Collider2D>();
+        if (weaponCollider == null) Debug.LogError("Collider2D not found on weapon!");
+
+        // Disable the trigger collider initially
+        weaponCollider.enabled = false;
+    }
+
+    public void EnableTriggerCollider()
+    {
+        // Enable the trigger collider on the weapon
+        weaponCollider.enabled = true;
+    }
+
+    public void DisableTriggerCollider()
+    {
+        // Disable the trigger collider on the weapon
+        weaponCollider.enabled = false;
+    }
+
     public IEnumerator SwingSword(Direction attackDirection, GameObject frontPivot, GameObject backPivot, GameObject rightPivot, GameObject defaultPivot)
     {
         float totalSwingDuration = 0.3f;
@@ -78,5 +102,6 @@ public class SwordController : MonoBehaviour
         gameObject.transform.localPosition = new Vector3(-0.75f, 2.85f, 0);
         gameObject.transform.localRotation = Quaternion.identity;
         swordTrail.ClearTrail();
+        DisableTriggerCollider();
     }
 }

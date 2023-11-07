@@ -24,10 +24,8 @@ public class BossController : MonoBehaviour
 
     public BossAttackController leftClawController;
     public BossAttackController rightClawController;
-    public BossAttackController tailController;
     public GameObject leftClaw;
     public GameObject rightClaw;
-    public GameObject tail;
     public GameObject attackPoint;
 
     private void Start()
@@ -91,18 +89,17 @@ public class BossController : MonoBehaviour
             {
                 case Direction.Front:
                     attackPoint.transform.rotation = Quaternion.Euler(0, 0, 0);
-                    attackRange = 2.5f;
+                    attackRange = 1.75f;
                     break;
                 case Direction.Back:
                     attackPoint.transform.rotation = Quaternion.Euler(0, 0, 180);
-                    attackRange = 1.5f;
+                    attackRange = 0.75f;
                     break;
                 case Direction.Side:
                     attackPoint.transform.rotation = Quaternion.Euler(0, 0, transform.localScale.x > 0 ? 90 : -90);
-                    attackRange = 1.75f;
+                    attackRange = 1.25f;
                     break;
             }
-            Debug.Log("Turn");
             nextTurnTime = Time.time + turnCooldown;
         }
 
@@ -142,8 +139,6 @@ public class BossController : MonoBehaviour
         return false;
     }
 
-
-
     private void Attack()
     {
         isAttacking = true;
@@ -153,20 +148,59 @@ public class BossController : MonoBehaviour
         switch (bossAttack)
         {
             case 1:
+                // Enable the trigger collider on the weapon
+                leftClawController.EnableTriggerCollider();
                 StartCoroutine(leftClawController.SwingClaw(lastDirection));
                 break;
             case 2:
+                rightClawController.EnableTriggerCollider();
                 StartCoroutine(rightClawController.SwingClaw(lastDirection));
-                break;
-            case 3:
-                StartCoroutine(tailController.SwingClaw(lastDirection));
                 break;
             default:
                 break;
         }
 
+        Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, attackRange + 0.25f);
+
+        foreach (Collider2D collider in colliders)
+        {
+            // Check if the collider has the "Player" tag
+            if (collider.CompareTag("Player"))
+            {
+                Rigidbody2D rb = collider.GetComponent<Rigidbody2D>();
+                if (rb != null)
+                {
+                    // Calculate the direction from the explosion to the player
+                    Vector2 pushDirection = rb.position - (Vector2)transform.position;
+                    pushDirection.Normalize();
+
+                    // Apply the explosion force
+                    StartCoroutine(ApplyExplosionForce(rb, pushDirection));
+                }
+            }
+        }
+
         // Start the attack timeout coroutine
         StartCoroutine(AttackTimeout());
+    }
+
+    private IEnumerator ApplyExplosionForce(Rigidbody2D rb, Vector2 pushDirection)
+    {
+        // Apply the initial explosion force
+        rb.AddForce(pushDirection * 5f, ForceMode2D.Impulse);
+
+        // Wait for a specified amount of time
+        yield return new WaitForSeconds(0.25f); // Adjust the delay as needed
+
+        // Reduce the force over time
+        while (rb.velocity.magnitude > 0.1f)
+        {
+            rb.velocity *= 0.9f; // Adjust the reduction factor as needed
+            yield return new WaitForFixedUpdate();
+        }
+
+        // Stop the Rigidbody
+        rb.velocity = Vector2.zero;
     }
 
     private IEnumerator AttackTimeout()
@@ -243,11 +277,6 @@ public class BossController : MonoBehaviour
         {
             inRange = true;
             bossAttack = 2;
-        }
-        if ((Vector3.Distance(tail.transform.position, playerTransform.position) - 0.3f) <= attackRange)
-        {
-            inRange = true;
-            bossAttack = 3;
         }
         return inRange;
     }

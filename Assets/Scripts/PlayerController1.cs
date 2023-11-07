@@ -3,9 +3,9 @@ using Spine.Unity;
 using System.Collections;
 using CharacterEnums;
 
-public class PlayerController : MonoBehaviour
+public class PlayerController1 : MonoBehaviour
 {
-    public float moveSpeed = 5f;
+    public float moveSpeed ;
     public SkeletonAnimation skeletonAnimation;
     private Vector3 targetPosition;
     private Direction lastDirection;
@@ -24,6 +24,8 @@ public class PlayerController : MonoBehaviour
     private float attackCooldown = 1f; // Cooldown period in seconds
     private float nextAttackTime = 0f; // Time when the next attack can be performed
 
+    private bool isDied;
+
 
     private void Start()
     {
@@ -31,19 +33,18 @@ public class PlayerController : MonoBehaviour
         if (swordController == null) Debug.LogError("swordController is not assigned!");
         targetPosition = transform.position;
         skeletonAnimation.AnimationState.Complete += HandleAnimationEnd;
+
+        moveSpeed = UpdateStatCharacter.instance.Agi;
+        HealthManager.CharacterDied += CharacterDied;
+    }
+    private void CharacterDied()
+    {
+        isDied = true;
     }
 
     private void Update()
-    {
-        Collider[] colliders = Physics.OverlapBox(transform.position, Vector3.one);
-        foreach (Collider col in colliders)
-        {
-            if (col.gameObject != gameObject)
-            {
-                Debug.Log("Overlapping with: " + col.gameObject.name);
-            }
-        }
-        if (Input.GetMouseButtonDown(1) && !isAttacking) // Right mouse button clicked
+    {   if(isDied) { return; }
+        if (Input.GetMouseButtonDown(1) && !isAttacking ) // Right mouse button clicked
         {
             SetNewTargetPosition();
             currentState = CharacterState.Run;
@@ -129,9 +130,6 @@ public class PlayerController : MonoBehaviour
         isAttacking = true;
         currentState = CharacterState.Attack;
 
-        // Enable the trigger collider on the weapon
-        swordController.EnableTriggerCollider();
-
         // Start the swing sword coroutine
         StartCoroutine(swordController.SwingSword(lastDirection, frontPivot, backPivot, rightPivot, defaultPivot));
 
@@ -139,18 +137,6 @@ public class PlayerController : MonoBehaviour
         StartCoroutine(AttackTimeout());
     }
 
-    private void OnTriggerEnter2D(Collider2D other)
-    {
-        if (other.CompareTag("Boss"))
-        {
-            BossController boss = other.GetComponentInParent<BossController>();
-            if (boss != null)
-            {
-                // Deal damage to the target
-                Debug.Log("BossHit");
-            }
-        }
-    }
 
     private IEnumerator AttackTimeout()
     {
@@ -209,7 +195,7 @@ public class PlayerController : MonoBehaviour
                 break;
         }
 
-        //Debug.Log(stateName);
+       // Debug.Log(stateName);
         skeletonAnimation.AnimationState.SetAnimation(0, stateName, loop);
     }
 }

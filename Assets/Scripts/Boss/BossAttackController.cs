@@ -4,7 +4,32 @@ using CharacterEnums;
 
 public class BossAttackController : MonoBehaviour
 {
-    public BossAttackTrail clawTrail;
+    public BossAttackTrail clawTrail1;
+    public BossAttackTrail clawTrail2;
+    public BossAttackTrail clawTrail3;
+    private Collider2D weaponCollider;
+
+    private void Start()
+    {
+        // Get the Collider2D component on the weapon GameObject
+        weaponCollider = GetComponent<Collider2D>();
+        if (weaponCollider == null) Debug.LogError("Collider2D not found on weapon!");
+
+        // Disable the trigger collider initially
+        weaponCollider.enabled = false;
+    }
+
+    public void EnableTriggerCollider()
+    {
+        // Enable the trigger collider on the weapon
+        weaponCollider.enabled = true;
+    }
+
+    public void DisableTriggerCollider()
+    {
+        // Disable the trigger collider on the weapon
+        weaponCollider.enabled = false;
+    }
     public IEnumerator SwingClaw(Direction attackDirection)
     {
         float totalSwingDuration = 0.35f;
@@ -21,15 +46,17 @@ public class BossAttackController : MonoBehaviour
                 break;
         }
 
-        float startAngle = Random.Range(70.0f, 135.0f);
-        float endAngle = Random.Range(-135.0f, -70.0f);
+        float startAngle = Random.Range(-135.0f, -70.0f);
+        float endAngle = Random.Range(70.0f, 135.0f);
 
         // Rotate slightly in the opposite direction for anticipation
         float anticipationAngle = startAngle - 10.0f;
         gameObject.transform.localRotation = Quaternion.Euler(0, 0, anticipationAngle);
 
         // Start the trail effect
-        clawTrail.StartTrail();
+        clawTrail1.StartTrail();
+        clawTrail2.StartTrail();
+        clawTrail3.StartTrail();
 
         yield return new WaitForSeconds(anticipationDuration);
 
@@ -42,7 +69,10 @@ public class BossAttackController : MonoBehaviour
             yield return null;
         }
 
-        clawTrail.EndTrail();
+        clawTrail1.EndTrail();
+        clawTrail2.EndTrail();
+        clawTrail3.EndTrail();
+        DisableTriggerCollider();
         yield return new WaitForSeconds(swingDuration);
 
         gameObject.transform.localRotation = Quaternion.identity;
