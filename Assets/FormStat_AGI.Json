@@ -1,7 +1,0 @@
-﻿{
-    "coinRequired": 10,         // vàng yêu cầu để nâng cấp 
-    "maxStat": 10.0,            // chỉ số cộng thêm tối đa  
-    "statPlus": 1.0,            // chỉ số được cộng mỗi lần nâng cấp
-    "currentStatPlus": 1.0,    // chỉ số hiện tại đã cộng thêm  
-    "percentRise": 0.9          //  tăng % Coin sau mỗi lần nâng cấp 
-}
