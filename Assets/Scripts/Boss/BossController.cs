@@ -14,6 +14,8 @@ public class BossController : MonoBehaviour
     private bool isAttacking = false;
     private float nextAttackTime = 0f;
     public Transform playerTransform;
+    private GameObject player;
+    private PlayerController playerController;
 
     public enum CharacterState { Idle, Run, Attack };
     private CharacterState currentState = CharacterState.Idle;
@@ -33,13 +35,14 @@ public class BossController : MonoBehaviour
         if (skeletonAnimation == null) Debug.LogError("skeletonAnimation is not assigned!");
 
         // Find the player GameObject with the "Player" tag
-        GameObject playerObject = GameObject.FindWithTag("Player");
+        player = GameObject.FindWithTag("Player");
+        playerController = player.GetComponent<PlayerController>();
 
         // Check if the player GameObject was found
-        if (playerObject != null)
+        if (player != null)
         {
             // Assign the transform of the player GameObject to playerTransform
-            playerTransform = playerObject.transform;
+            playerTransform = player.transform;
         }
         else
         {
@@ -173,10 +176,10 @@ public class BossController : MonoBehaviour
                     // Calculate the direction from the explosion to the player
                     Vector2 pushDirection = rb.position - (Vector2)transform.position;
                     pushDirection.Normalize();
-
                     // Apply the explosion force
                     StartCoroutine(ApplyExplosionForce(rb, pushDirection));
                 }
+                playerController.TakeDamage(10f);
             }
         }
 

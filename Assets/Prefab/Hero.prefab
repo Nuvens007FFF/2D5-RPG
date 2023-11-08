@@ -15058,7 +15058,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2d3e3edc6a598c74f8b25f970d5da40b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 4
+  moveSpeed: 3
   skeletonAnimation: {fileID: 3783285023837275770}
   swordController: {fileID: 3996625605081748243}
   frontPivot: {fileID: 7505537600121476216}

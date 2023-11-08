@@ -5,7 +5,7 @@ using CharacterEnums;
 
 public class PlayerController : MonoBehaviour
 {
-    public float moveSpeed = 5f;
+    public float moveSpeed = 3f;
     public SkeletonAnimation skeletonAnimation;
     private Vector3 targetPosition;
     private Direction lastDirection;
@@ -14,6 +14,8 @@ public class PlayerController : MonoBehaviour
     private CharacterState currentState = CharacterState.Idle;
     private CharacterState previousState;
     private bool isAttacking = false;
+    private bool isDied = false;
+    private HealthManager healthManager;
 
     public SwordController swordController;
     public GameObject frontPivot;
@@ -31,18 +33,45 @@ public class PlayerController : MonoBehaviour
         if (swordController == null) Debug.LogError("swordController is not assigned!");
         targetPosition = transform.position;
         skeletonAnimation.AnimationState.Complete += HandleAnimationEnd;
+
+        HealthManager.CharacterDied += CharacterDied;
+        moveSpeed = UpdateStatCharacter.instance.Agi * 0.3f;
+        GameObject healthBarObject = GameObject.Find("HealthBar");
+        if (healthBarObject != null)
+        {
+            healthManager = healthBarObject.GetComponent<HealthManager>();
+            if (healthManager == null)
+            {
+                Debug.LogError("HealthManager component not found on HealthBar!");
+            }
+        }
+        else
+        {
+            Debug.LogError("HealthBar GameObject not found!");
+        }
+    }
+
+    private void CharacterDied()
+    {
+        isDied = true;
+    }
+
+    public void TakeDamage(float damage)
+    {
+        healthManager.TakeDamage(damage);
     }
 
     private void Update()
     {
-        Collider[] colliders = Physics.OverlapBox(transform.position, Vector3.one);
-        foreach (Collider col in colliders)
-        {
-            if (col.gameObject != gameObject)
-            {
-                Debug.Log("Overlapping with: " + col.gameObject.name);
-            }
-        }
+        if (isDied) { return; }
+        //Collider[] colliders = Physics.OverlapBox(transform.position, Vector3.one);
+        //foreach (Collider col in colliders)
+        //{
+        //    if (col.gameObject != gameObject)
+        //    {
+        //        Debug.Log("Overlapping with: " + col.gameObject.name);
+        //    }
+        //}
         if (Input.GetMouseButtonDown(1) && !isAttacking) // Right mouse button clicked
         {
             SetNewTargetPosition();
