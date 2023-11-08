@@ -10,6 +10,21 @@ public class CameraFollow : MonoBehaviour
 
     private void Start()
     {
+        // Try to find the player GameObject when the script starts
+        FindPlayer();
+    }
+
+    private void Update()
+    {
+        // If the playerTransform is still null, try to find the player GameObject again
+        if (playerTransform == null)
+        {
+            FindPlayer();
+        }
+    }
+
+    private void FindPlayer()
+    {
         // Find the player GameObject with the "Player" tag
         GameObject playerObject = GameObject.FindWithTag("Player");
 
@@ -22,7 +37,7 @@ public class CameraFollow : MonoBehaviour
         else
         {
             // Log an error if the player GameObject was not found
-            Debug.LogError("Player GameObject not found in scene!");
+            Debug.Log("Player GameObject not found in scene!");
         }
     }
 
