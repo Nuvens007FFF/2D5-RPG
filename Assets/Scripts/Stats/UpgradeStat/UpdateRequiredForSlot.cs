@@ -26,7 +26,7 @@ public class UpdateRequiredForSlot : MonoBehaviour
             }
             LoadStatData(nameTag);
         }
-        Debug.Log(nameTag + ": coinRequied: " + coinRequired + ", maxStat: " + maxStat + " statPlus: " + statPlus + " currentStatPlus: " +currentStatPlus + " PercentRise: " +percentRise);
+        //Debug.Log(nameTag + ": coinRequied: " + coinRequired + ", maxStat: " + maxStat + " statPlus: " + statPlus + " currentStatPlus: " +currentStatPlus + " PercentRise: " +percentRise);
     }
     public bool CheckTag()
     {
