@@ -3916,10 +3916,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 1667595065}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 43bce7a9082ae4e41a7cfada9f0d858d, type: 3}
+  m_Script: {fileID: 11500000, guid: 7187a11e0e4300040a77b64b2e72af9a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pannelSummary: {fileID: 48997692}
+  pannelDie: {fileID: 48997692}
 --- !u!1 &1778036157
 GameObject:
   m_ObjectHideFlags: 0
@@ -4133,12 +4133,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 1803051677}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7916e1bbc3224d7418e54882260ddcc2, type: 3}
+  m_Script: {fileID: 11500000, guid: 1b9b8cbf88c0d3a44abf788147b88998, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  coin: {fileID: 2657440113839330188, guid: 3f71e44c9cc8ceb41ac2f06ebb1e0e07, type: 3}
-  countCoinInitial: 10
-  listCoin: []
+  coinPrefabs: {fileID: 2657440113839330188, guid: 3f71e44c9cc8ceb41ac2f06ebb1e0e07, type: 3}
+  coinCount: 10
+  coinList: []
 --- !u!1 &1897729231
 GameObject:
   m_ObjectHideFlags: 0
