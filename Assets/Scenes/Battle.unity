@@ -4014,11 +4014,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 1803051677}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7916e1bbc3224d7418e54882260ddcc2, type: 3}
+  m_Script: {fileID: 11500000, guid: 1b9b8cbf88c0d3a44abf788147b88998, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   coin: {fileID: 2657440113839330188, guid: 3f71e44c9cc8ceb41ac2f06ebb1e0e07, type: 3}
-  countCoinInitial: 10
+  countCoinInitial: 5
   listCoin: []
 --- !u!114 &1803051683
 MonoBehaviour:
@@ -4034,6 +4034,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefabsToLoad:
   - {fileID: 3783285024878901832, guid: 8f9bac53e6e8bb145a8dcd9c6bcfb5d1, type: 3}
+  - {fileID: 2285748669988899534, guid: 5b5a19235d4557047894dc29b2d7ae23, type: 3}
 --- !u!1 &1886128040
 GameObject:
   m_ObjectHideFlags: 0
