@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 8418459812939880136}
   - component: {fileID: 2945841359270602340}
   m_Layer: 0
-  m_Name: Ship_portal_32x32_0
+  m_Name: SkillBoss_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

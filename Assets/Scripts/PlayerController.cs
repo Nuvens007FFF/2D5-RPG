@@ -24,8 +24,6 @@ public class PlayerController : MonoBehaviour
     private float attackCooldown = 1f; // Cooldown period in seconds
     private float nextAttackTime = 0f; // Time when the next attack can be performed
 
-    public SkillSO s;
-
     private void Start()
     {
         if (skeletonAnimation == null) Debug.LogError("skeletonAnimation is not assigned!");
@@ -36,12 +34,12 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetMouseButtonDown(1) && !isAttacking) // Right mouse button clicked
+        if (Input.GetMouseButtonDown(1) && !isAttacking ) // Right mouse button clicked
         {
             SetNewTargetPosition();
             currentState = CharacterState.Run;
         }
-
+        
         if (Input.GetMouseButtonDown(0) && !isAttacking && Time.time >= nextAttackTime) // Left mouse button clicked
         {
             SetNewTargetPosition();
@@ -64,10 +62,7 @@ public class PlayerController : MonoBehaviour
 
         previousState = currentState;
 
-        if(transform.position == s.image.transform.position)
-        {
-            //Nếu player chạm vào vùng nước xoáy, thì bị hất tung
-        }
+        
     }
 
     private void SetNewTargetPosition()
@@ -195,4 +190,5 @@ public class PlayerController : MonoBehaviour
         Debug.Log(stateName);
         skeletonAnimation.AnimationState.SetAnimation(0, stateName, loop);
     }
+
 }

@@ -4,8 +4,8 @@ public class EnemyAttack : MonoBehaviour
 {
     public GameObject player;
     float distance;
-    //public GameObject Xoaywater;
     public SkillSO s;
+
     void Update()
     {
         CheckPos();
@@ -20,4 +20,5 @@ public class EnemyAttack : MonoBehaviour
             Destroy(SkillNienThu, 1.5f);
         }
     }
+    
 }

@@ -14,4 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   nameSkill: XoayWater
   damage: 10
-  image: {fileID: 5109893262424773678, guid: ff4af3203f2848341954d91657f04a99, type: 3}
+  image: {fileID: 1687118924408352, guid: 77c69ec12208c4c4380d15e30b6f8f68, type: 3}
