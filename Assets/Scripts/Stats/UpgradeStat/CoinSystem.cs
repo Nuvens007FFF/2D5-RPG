@@ -6,9 +6,10 @@ public class CoinSystem : MonoBehaviour
 {   
     public static CoinSystem instance;
     public static event Action<float> CoinUpdated;
-    
+    public static event Action<float> CoinUpdatedUI;
+
     private float _coinIndex = 70000f  ;
-    private float coinInBattle;
+    private float coinInBattle ;
     public float CoinIndex
     {   
         set { _coinIndex = value; }
@@ -19,8 +20,10 @@ public class CoinSystem : MonoBehaviour
         instance = this;
     }
     void Start()
-    {
+    {   
         HealthManager.CharacterDied += SummaryCoin;
+        Coin.TakeCoinInBattle += TakeCoinInBattle;
+        coinInBattle = 0f;
         if (!File.Exists(GetCoinFilePath()))
         {
             CreateFileFormCoin();
@@ -38,9 +41,15 @@ public class CoinSystem : MonoBehaviour
         }
         return false;
     }
+    private void OnDestroy()
+    {
+        HealthManager.CharacterDied -= SummaryCoin;
+        Coin.TakeCoinInBattle -= TakeCoinInBattle;
+    }
     public void TakeCoinInBattle(float coin)
     {
         coinInBattle += coin;
+        if(CoinUpdatedUI != null) { CoinUpdatedUI(coinInBattle); }
         Debug.Log("coinInbatle =" + coinInBattle);
     }
     public void SummaryCoin()

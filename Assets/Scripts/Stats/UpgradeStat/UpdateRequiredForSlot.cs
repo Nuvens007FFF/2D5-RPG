@@ -1,12 +1,15 @@
 ﻿using System;
 using System.IO;
+using TMPro;
 using UnityEngine;
 
 public class UpdateRequiredForSlot : MonoBehaviour
 {
     public static event Action<string,float> SatisfyUpdateRequired;
+    public static event Action<float> coinRequiredAfterUpdate;
 
-    private  float coinRequired = 10.0f;
+    [SerializeField] private TMP_Text CoinRequired;
+    private  float _coinRequired = 10.0f;
     private float maxStat = 30.0f;
     private float maxStatAgi = 10.0f;
     private float statPlus = 1.0f;
@@ -14,6 +17,7 @@ public class UpdateRequiredForSlot : MonoBehaviour
     private float percentRise = 0.3f;
     private float percentRiseAgi = 0.9f;
     private string nameTag;
+
     
 
     private void Start()
@@ -26,7 +30,14 @@ public class UpdateRequiredForSlot : MonoBehaviour
             }
             LoadStatData(nameTag);
         }
+        CoinRequiredUpdate(_coinRequired);
+        //if(coinRequiredAfterUpdate != null) { coinRequiredAfterUpdate(coinRequired); }
         //Debug.Log(nameTag + ": coinRequied: " + coinRequired + ", maxStat: " + maxStat + " statPlus: " + statPlus + " currentStatPlus: " +currentStatPlus + " PercentRise: " +percentRise);
+    }
+    private void CoinRequiredUpdate(float newCoinValue)
+    {   
+        var roundCoinValue = (float)Math.Round(newCoinValue);
+        CoinRequired.text = roundCoinValue.ToString();
     }
     public bool CheckTag()
     {
@@ -43,7 +54,7 @@ public class UpdateRequiredForSlot : MonoBehaviour
         {
             case "ATK":
                 ATK atkData = new ATK();
-                atkData.coinRequired = coinRequired;
+                atkData.coinRequired = _coinRequired;
                 atkData.maxStat = maxStat;
                 atkData.statPlus = statPlus;
                 atkData.currentStatPlus = currentStatPlus;
@@ -56,7 +67,7 @@ public class UpdateRequiredForSlot : MonoBehaviour
 
             case "HP":
                 HP hpData = new HP();
-                hpData.coinRequired = coinRequired;
+                hpData.coinRequired = _coinRequired;
                 hpData.maxStat = maxStat;
                 hpData.statPlus = statPlus;
                 hpData.currentStatPlus = currentStatPlus;
@@ -69,7 +80,7 @@ public class UpdateRequiredForSlot : MonoBehaviour
 
             case "MP":
                 MP mpData = new MP();
-                mpData.coinRequired = coinRequired;
+                mpData.coinRequired = _coinRequired;
                 mpData.maxStat = maxStat;
                 mpData.statPlus = statPlus;
                 mpData.currentStatPlus = currentStatPlus;
@@ -82,7 +93,7 @@ public class UpdateRequiredForSlot : MonoBehaviour
 
             case "RegenMP":
                 RegenMP regenMPData = new RegenMP();
-                regenMPData.coinRequired = coinRequired;
+                regenMPData.coinRequired = _coinRequired;
                 regenMPData.maxStat = maxStat;
                 regenMPData.statPlus = statPlus;
                 regenMPData.currentStatPlus = currentStatPlus;
@@ -94,7 +105,7 @@ public class UpdateRequiredForSlot : MonoBehaviour
                 break;
             case "AGI":
                 AGI agiData = new AGI();
-                agiData.coinRequired = coinRequired;
+                agiData.coinRequired = _coinRequired;
                 agiData.maxStat = maxStatAgi;
                 agiData.statPlus = statPlus;
                 agiData.currentStatPlus = currentStatPlus;
@@ -114,7 +125,7 @@ public class UpdateRequiredForSlot : MonoBehaviour
         {
             case "ATK":
                 ATK atkData = JsonUtility.FromJson<ATK>(json);
-                coinRequired = atkData.coinRequired;
+                _coinRequired = atkData.coinRequired;
                 maxStat = atkData.maxStat;
                 statPlus = atkData.statPlus;
                 currentStatPlus = atkData.currentStatPlus;
@@ -124,7 +135,7 @@ public class UpdateRequiredForSlot : MonoBehaviour
             case "HP":
                 HP hpData = JsonUtility.FromJson<HP>(json);
                 statPlus = hpData.statPlus;
-                coinRequired = hpData.coinRequired;
+                _coinRequired = hpData.coinRequired;
                 maxStat = hpData.maxStat;
                 currentStatPlus = hpData.currentStatPlus;
                 percentRise = hpData.percentRise;
@@ -133,7 +144,7 @@ public class UpdateRequiredForSlot : MonoBehaviour
             case "MP":
                 MP mpData = JsonUtility.FromJson<MP>(json);
                 statPlus = mpData.statPlus;
-                coinRequired = mpData.coinRequired;
+                _coinRequired = mpData.coinRequired;
                 maxStat = mpData.maxStat;
                 currentStatPlus = mpData.currentStatPlus;
                 percentRise = mpData.percentRise;
@@ -142,7 +153,7 @@ public class UpdateRequiredForSlot : MonoBehaviour
             case "RegenMP":
                 RegenMP regenMPData = JsonUtility.FromJson<RegenMP>(json);
                 statPlus = regenMPData.statPlus;
-                coinRequired = regenMPData.coinRequired;
+                _coinRequired = regenMPData.coinRequired;
                 maxStat = regenMPData.maxStat;
                 currentStatPlus = regenMPData.currentStatPlus;
                 percentRise = regenMPData.percentRise;
@@ -151,7 +162,7 @@ public class UpdateRequiredForSlot : MonoBehaviour
             case "AGI":
                 AGI agiData = JsonUtility.FromJson<AGI>(json);
                 statPlus = agiData.statPlus;
-                coinRequired = agiData.coinRequired;
+                _coinRequired = agiData.coinRequired;
                 maxStat = agiData.maxStat;
                 currentStatPlus = agiData.currentStatPlus;
                 percentRise = agiData.percentRise;
@@ -161,7 +172,7 @@ public class UpdateRequiredForSlot : MonoBehaviour
     public void ClickUpgrade()
     {
         if (currentStatPlus >= maxStat) return;
-        if (CoinSystem.instance.GetCoin(coinRequired))
+        if (CoinSystem.instance.GetCoin(_coinRequired))
         {
             if (SatisfyUpdateRequired != null) SatisfyUpdateRequired(nameTag,statPlus);
             UpRequiredAfterUpgrade();
@@ -171,8 +182,9 @@ public class UpdateRequiredForSlot : MonoBehaviour
     void UpRequiredAfterUpgrade()
     {
         currentStatPlus += statPlus;
-        coinRequired *= (1 + percentRise);
-        Debug.Log("currentStatPlus = " + currentStatPlus + " / CoinRequired = " + coinRequired);
+        _coinRequired *= (1 + percentRise);
+        CoinRequiredUpdate(_coinRequired);
+        Debug.Log("currentStatPlus = " + currentStatPlus + " / CoinRequired = " + _coinRequired);
 
     }
     void SaveStatData(string nameForm)
@@ -182,7 +194,7 @@ public class UpdateRequiredForSlot : MonoBehaviour
             case "ATK":
                 ATK atk = new ATK();
                 atk.currentStatPlus = currentStatPlus;
-                atk.coinRequired = coinRequired;
+                atk.coinRequired = _coinRequired;
                 atk.statPlus = statPlus;
                 atk.maxStat = maxStat;
                 atk.percentRise = percentRise;
@@ -195,7 +207,7 @@ public class UpdateRequiredForSlot : MonoBehaviour
             case "HP":
                 HP hp = new HP();
                 hp.currentStatPlus = currentStatPlus;
-                hp.coinRequired = coinRequired;
+                hp.coinRequired = _coinRequired;
                 hp.statPlus = statPlus;
                 hp.maxStat = maxStat;
                 hp.percentRise = percentRise;
@@ -208,7 +220,7 @@ public class UpdateRequiredForSlot : MonoBehaviour
             case "MP":
                 MP mp = new MP();
                 mp.currentStatPlus = currentStatPlus;
-                mp.coinRequired = coinRequired;
+                mp.coinRequired = _coinRequired;
                 mp.statPlus = statPlus;
                 mp.maxStat = maxStat;
                 mp.percentRise = percentRise;
@@ -221,7 +233,7 @@ public class UpdateRequiredForSlot : MonoBehaviour
             case "RegenMP":
                 RegenMP regenMP = new RegenMP();
                 regenMP.currentStatPlus = currentStatPlus;
-                regenMP.coinRequired = coinRequired;
+                regenMP.coinRequired = _coinRequired;
                 regenMP.statPlus = statPlus;
                 regenMP.maxStat = maxStat;
                 regenMP.percentRise = percentRise;
@@ -234,7 +246,7 @@ public class UpdateRequiredForSlot : MonoBehaviour
             case "AGI":
                 AGI agi = new AGI();
                 agi.currentStatPlus = currentStatPlus;
-                agi.coinRequired = coinRequired;
+                agi.coinRequired = _coinRequired;
                 agi.statPlus = statPlus;
                 agi.maxStat = maxStatAgi;
                 agi.percentRise = percentRiseAgi;

@@ -13,26 +13,39 @@ public class CoinPool : MonoBehaviour
     }
     void CreateCoinPool()
     {
-        for (int i = 0; i < countCoinInitial; i++)
+        if (listCoin == null || listCoin.Count == 0)
         {
-            var _coin = Instantiate(coin, transform.position, Quaternion.identity);
-            _coin.SetActive(false);
-            listCoin.Add(_coin);
+            listCoin = new List<GameObject>();
+
+            for (int i = 0; i < countCoinInitial; i++)
+            {
+                var _coin = Instantiate(coin, Vector3.zero, Quaternion.identity);
+                _coin.SetActive(false);
+                listCoin.Add(_coin);
+            }
+
+            SplitOutCoin();
         }
-        var obj = AppearCoin();
-        obj.transform.position = new Vector2(2, 0);
-        obj.SetActive(true);
     }
     public GameObject AppearCoin()
     {
         for(int i = 0;i < listCoin.Count; i++)
         {
-            if (!listCoin[i].activeInHierarchy)
+            if (listCoin[i] != null && !listCoin[i].activeInHierarchy)
             {
                 return listCoin[i];
             }
 
         }
         return null;
+    }
+    public void SplitOutCoin()
+    {   
+        for(int i = 0; i < countCoinInitial; i++)
+        {
+            var obj = AppearCoin();
+            obj.transform.position = new Vector2(Random.Range(6,10), Random.Range(0,6));
+            obj.SetActive(true);
+        }
     }
 }
