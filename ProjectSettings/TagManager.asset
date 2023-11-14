@@ -9,6 +9,8 @@ TagManager:
   - MP
   - RegenMP
   - AGI
+  - Boss
+  - Coin
   layers:
   - Default
   - TransparentFX

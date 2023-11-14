@@ -9,10 +9,10 @@ public class SwordTrail : MonoBehaviour
         trailRenderer = GetComponent<TrailRenderer>();
 
         // Adjust trail settings
-        trailRenderer.time = 0.5f; // Adjust the lifetime of the trail points
-        trailRenderer.widthMultiplier = 2.0f; // Adjust the width of the trail
-        trailRenderer.startWidth = 1.0f; // Adjust the starting width of the trail
-        trailRenderer.endWidth = 0.1f; // Adjust the ending width of the trail
+        trailRenderer.time = 0.2f; // Adjust the lifetime of the trail points
+        trailRenderer.widthMultiplier = 1.5f; // Adjust the width of the trail
+        trailRenderer.startWidth = 1.5f; // Adjust the starting width of the trail
+        trailRenderer.endWidth = 0.2f; // Adjust the ending width of the trail
         trailRenderer.emitting = false;
     }
 
