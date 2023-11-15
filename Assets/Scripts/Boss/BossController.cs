@@ -10,7 +10,7 @@ public class BossController : MonoBehaviour
     public float attackCooldown = 5f;
     public float maxHP = 500f; 
     private float currentHP;
-    private float initialWaitTime = 0.5f; // Adjust the initial delay as needed
+    private float initialWaitTime = 3f; // Adjust the initial delay as needed
     private float currentWaitTime = 0f;
 
     public float CurrentHP

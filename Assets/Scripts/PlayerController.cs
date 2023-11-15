@@ -116,7 +116,12 @@ public class PlayerController : MonoBehaviour
         skeletonAnimation.AnimationState.Complete += HandleAnimationEnd;
 
         HealthManager.CharacterDied += CharacterDied;
-        moveSpeed = UpdateStatCharacter.instance.Agi * 0.3f;
+        //Update Stats
+        moveSpeed = 2f + (UpdateStatCharacter.instance.Agi * 0.2f);
+        skill1Damage = UpdateStatCharacter.instance.Atk * 1f;
+        skill3Damage = UpdateStatCharacter.instance.Atk * 1.5f;
+        skill4EnergyGainPerHit = UpdateStatCharacter.instance.RegenMp * 0.25f;
+
         GameObject healthBarObject = GameObject.Find("HealthBar");
         if (healthBarObject != null)
         {

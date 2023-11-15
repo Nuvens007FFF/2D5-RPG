@@ -20,10 +20,10 @@ public class StatManager : MonoBehaviour
 
     private int currentCoint;
 
-    private float baseHp = 40.0f;
-    private float baseAtk = 40.0f;
-    private float baseMp = 40.0f;
-    private float baseRegenMp = 2.0f;
+    private float baseHp = 10.0f;
+    private float baseAtk = 10.0f;
+    private float baseMp = 10.0f;
+    private float baseRegenMp = 10.0f;
     private float baseAGI = 5.0f;
 
     private void Awake()
