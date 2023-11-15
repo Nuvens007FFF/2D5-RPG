@@ -7,7 +7,7 @@ public class CoinSystem : MonoBehaviour
     public static CoinSystem instance;
     public static event Action<float> CoinUpdated;
     
-    private float _coinIndex = 70000f  ;
+    private float _coinIndex = 7000f  ;
     private float coinInBattle;
     public float CoinIndex
     {   
@@ -21,6 +21,7 @@ public class CoinSystem : MonoBehaviour
     void Start()
     {
         HealthManager.CharacterDied += SummaryCoin;
+        coin.takeCoin += TakeCoinInBattle;
         if (!File.Exists(GetCoinFilePath()))
         {
             CreateFileFormCoin();
