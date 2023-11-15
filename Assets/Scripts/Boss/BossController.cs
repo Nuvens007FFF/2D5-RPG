@@ -10,6 +10,9 @@ public class BossController : MonoBehaviour
     public float attackCooldown = 5f;
     public float maxHP = 500f; 
     private float currentHP;
+    private float initialWaitTime = 0.5f; // Adjust the initial delay as needed
+    private float currentWaitTime = 0f;
+
     public float CurrentHP
     {
         get { return currentHP; }
@@ -69,6 +72,15 @@ public class BossController : MonoBehaviour
 
     private void Update()
     {
+        currentWaitTime += Time.deltaTime;
+
+        // Check if the initial delay has passed
+        if (currentWaitTime < initialWaitTime)
+        {
+            // Do nothing during the initial delay
+            return;
+        }
+
         //Debug.Log(isAttacking + " " + (IsPlayerInRange() + " " + (Time.time >= nextAttackTime)));
         if (!isAttacking)
         {

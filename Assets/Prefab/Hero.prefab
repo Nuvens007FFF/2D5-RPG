@@ -19884,9 +19884,10 @@ MonoBehaviour:
   FlameCircle: {fileID: 2215127602483377946, guid: 08231dbf5a5b1ea44a26ec6c5247da50, type: 3}
   FireMark: {fileID: 9155551494558055836, guid: 7e96d6ef645d44f4e97c749a0fe13e77, type: 3}
   FireMarkExplosion: {fileID: 5431137497914662649, guid: 9b8f0c9c3db9e7b4bbb8678300a2cf78, type: 3}
-  manaCostQ: 0
-  manaCostW: 0
-  manaCostE: 0
+  MoveIndicator: {fileID: 3643301904603070627, guid: a0a85d16913a05e4ebf8d16b7e6e4d87, type: 3}
+  manaCostQ: 2
+  manaCostW: 4
+  manaCostE: 2
   manaCostR: 0
   comboTime: 1
   attackCooldown: 1

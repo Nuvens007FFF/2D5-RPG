@@ -18,6 +18,7 @@ public class PlayerController : MonoBehaviour
     private bool isAttacking = false;
     private bool isDied = false;
     private bool isDashing = false;
+    private bool allowMoving = true;
     private HealthManager healthManager;
     private ManaManager manaManager;
     private GameObject bossNian;
@@ -42,6 +43,7 @@ public class PlayerController : MonoBehaviour
     public GameObject FlameCircle; //Skill 4 VFX
     public GameObject FireMark; //Skill 4 VFX 
     public GameObject FireMarkExplosion; //Skill 4 VFX
+    public GameObject MoveIndicator;
     public float manaCostQ = 5f;
     public float manaCostW = 20f;
     public float manaCostE = 10f;
@@ -88,19 +90,26 @@ public class PlayerController : MonoBehaviour
         dashTrail.Stop();
         dashTrail.Clear();
 
-        // Find the player GameObject with the "Boss" tag
-        bossNian = GameObject.FindWithTag("Boss");
+        // Find the player GameObject with the "BossObject" tag
+        bossNian = GameObject.FindWithTag("BossObject");
 
         // Check if the boss GameObject was found
         if (bossNian != null)
         {
             bossNianController = bossNian.GetComponent<BossController>();
-            currentBossHP = bossNianController.CurrentHP;
+            if (bossNianController != null)
+            {
+                currentBossHP = bossNianController.CurrentHP;
+                Debug.Log("Boss HP: " + currentBossHP);
+            }
+            else
+            {
+                Debug.LogError("BossController component not found on " + bossNian.name);
+            }
         }
         else
         {
-            // Log an error if the boss GameObject was not found
-            Debug.LogError("Boss GameObject not found in scene!");
+            Debug.LogError("bossNian GameObject is null");
         }
 
         targetPosition = transform.position;
@@ -156,9 +165,9 @@ public class PlayerController : MonoBehaviour
     private void Update()
     {
         if (isDied) { return; }
-        if (Input.GetMouseButtonDown(1) && !isAttacking) // Right mouse button clicked
+        if (Input.GetMouseButtonDown(1) && !isAttacking && allowMoving) // Right mouse button clicked
         {
-            SetNewTargetPosition();
+            SetNewTargetPosition(true);
             currentState = CharacterState.Run;
         }
 
@@ -247,7 +256,16 @@ public class PlayerController : MonoBehaviour
         previousBossHP = currentBossHP;
 
         // Update currentBossHP
-        currentBossHP = bossNianController.CurrentHP;
+        if (bossNianController != null)
+        {
+            currentBossHP = bossNianController.CurrentHP;
+        }
+        else
+        {
+            Debug.LogError("Boss GameObject Controller not found!");
+            //Update
+            bossNianController = bossNian.GetComponent<BossController>();
+        }     
 
         // Check if the currentBossHP has changed
         if (currentBossHP < previousBossHP && !isSkill4Active)
@@ -311,12 +329,16 @@ public class PlayerController : MonoBehaviour
         previousState = currentState;
     }
 
-    private void SetNewTargetPosition()
+    private void SetNewTargetPosition(bool mouseClicked = false)
     {
         Vector3 newTargetPosition = GetMousePositionInWorldSpace();
 
         if (newTargetPosition != targetPosition)
         {
+            if (mouseClicked)
+            {
+                Instantiate(MoveIndicator, newTargetPosition, Quaternion.identity);
+            }
             Direction newDirection = DetermineDirection(newTargetPosition);
 
             targetPosition = newTargetPosition;
@@ -448,6 +470,7 @@ public class PlayerController : MonoBehaviour
         // Check if the skillPrefab is assigned
         if (Skill_1 != null && manaManager.Mana > (manaCostQ))
         {
+            allowMoving = false;
             allowComboEQ = false;
             SetNewTargetPosition();
             StartCoroutine(swordController.UseSkill(0.6f));
@@ -496,11 +519,12 @@ public class PlayerController : MonoBehaviour
                 }
 
                 // Add a delay between each instantiation
-                yield return new WaitForSeconds(0.15f);
+                yield return new WaitForSeconds(0.12f);
             }
 
             // Start the attack timeout coroutine
             StartCoroutine(AttackTimeout());
+            allowMoving = true;
         }
         else
         {
@@ -897,7 +921,7 @@ public class PlayerController : MonoBehaviour
 
             // Set it as a child of the player
             skillInstance.transform.parent = transform;
-            skillInstance2.transform.parent = transform;
+            skillInstance2.transform.parent = Camera.main.transform;
             //Set mark as a child of boss
             skillInstance3.transform.parent = bossNian.transform;
             Transform centerTransform = bossNian.transform.Find("AttackPoint/Center");
