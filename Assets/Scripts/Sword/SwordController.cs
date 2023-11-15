@@ -4,12 +4,36 @@ using CharacterEnums;
 
 public class SwordController : MonoBehaviour
 {
-    public SwordTrail swordTrail;
+    public SwordParticleSystemTrail swordTrail;
+    private Collider2D weaponCollider;
+
+    private void Start()
+    {
+        // Get the Collider2D component on the weapon GameObject
+        weaponCollider = GetComponent<Collider2D>();
+        if (weaponCollider == null) Debug.LogError("Collider2D not found on weapon!");
+
+        // Disable the trigger collider initially
+        weaponCollider.enabled = false;
+    }
+
+    public void EnableTriggerCollider()
+    {
+        // Enable the trigger collider on the weapon
+        weaponCollider.enabled = true;
+    }
+
+    public void DisableTriggerCollider()
+    {
+        // Disable the trigger collider on the weapon
+        weaponCollider.enabled = false;
+    }
+
     public IEnumerator SwingSword(Direction attackDirection, GameObject frontPivot, GameObject backPivot, GameObject rightPivot, GameObject defaultPivot)
     {
-        float totalSwingDuration = 0.35f;
-        float anticipationDuration = 0.01f; // adjust this to a lower value
-        float swingDuration = (totalSwingDuration - anticipationDuration*2) / 3;
+        float totalSwingDuration = 0.3f;
+        float anticipationDuration = 0.01f;
+        float swingDuration = (totalSwingDuration - anticipationDuration * 1) / 2;
 
         GameObject pivot = frontPivot;
         switch (attackDirection)
@@ -25,29 +49,35 @@ public class SwordController : MonoBehaviour
                 break;
         }
 
+        SpriteRenderer spriteRenderer = gameObject.transform.GetComponent<SpriteRenderer>();
+        spriteRenderer.enabled = false;
         gameObject.transform.SetParent(pivot.transform, true);
         gameObject.transform.localPosition = new Vector3(0, 0, 0);
 
-        float lastEndAngle = 0;
-
-        for (int i = 0; i < 3; i++)
+        for (int i = 0; i < 2; i++)
         {
-            float startAngle = Random.Range(70.0f, 135.0f);
-            float endAngle = Random.Range(-135.0f, -70.0f);
+            float angleX = 45f;
+            float angleY = -45f;
+            float startZAngle = 135f;
+            float endZAngle = -135f;
 
             if (i == 1) // Second swing (reverse of the first)
             {
-                endAngle = startAngle;
-                startAngle = lastEndAngle;
+                angleX = -45f;
+                angleY = -45f;
+                startZAngle = -135f;
+                endZAngle = 135f;
             }
-            else if (i == 2)// Third swing (same as the first)
-            {
-                startAngle = lastEndAngle;
-                endAngle = Random.Range(-70.0f, -135.0f);
-            }
+            //else if (i == 2)// Third swing (same as the first)
+            //{
+            //    angleX = 0f;
+            //    angleY = -105f;
+            //    startZAngle = 135f;
+            //    endZAngle = -135f;
+            //}
 
             // Rotate slightly in the opposite direction for anticipation
-            float anticipationAngle = startAngle - 10.0f;
+            float anticipationAngle = startZAngle - 10.0f;
             gameObject.transform.localRotation = Quaternion.Euler(0, 0, anticipationAngle);
 
             // Start the trail effect
@@ -59,20 +89,19 @@ public class SwordController : MonoBehaviour
             while (t < 1)
             {
                 t += Time.deltaTime / swingDuration;
-                float angle = Mathf.Lerp(startAngle, endAngle, t * t * (3f - 2f * t)); // Ease-in-out interpolation
-                gameObject.transform.localRotation = Quaternion.Euler(0, 0, angle);
+                float angleZ = Mathf.Lerp(startZAngle, endZAngle, t * t * (3f - 2f * t)); // Ease-in-out interpolation
+                gameObject.transform.localRotation = Quaternion.Euler(angleX, angleY, angleZ);
                 yield return null;
             }
-
-            // Remember the last end angle for the next swing
-            lastEndAngle = endAngle;
-
             swordTrail.EndTrail();
             yield return new WaitForSeconds(swingDuration);
         }
 
         gameObject.transform.SetParent(defaultPivot.transform, true);
-        gameObject.transform.localPosition = new Vector3(-1, 3.9f, 0);
+        spriteRenderer.enabled = true;
+        gameObject.transform.localPosition = new Vector3(-0.75f, 2.85f, 0);
         gameObject.transform.localRotation = Quaternion.identity;
+        swordTrail.ClearTrail();
+        DisableTriggerCollider();
     }
 }
