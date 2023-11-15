@@ -8,6 +8,14 @@ public class BossController : MonoBehaviour
     public float moveSpeed = 5f;
     public float attackRange = 2f;
     public float attackCooldown = 5f;
+    public float maxHP = 500f; 
+    private float currentHP;
+    public float CurrentHP
+    {
+        get { return currentHP; }
+        private set { currentHP = value; }
+    }
+    public float normalAttackDamage = 5f;
     public SkeletonAnimation skeletonAnimation;
     private Vector3 targetPosition;
     private Direction lastDirection;
@@ -29,6 +37,8 @@ public class BossController : MonoBehaviour
     public GameObject leftClaw;
     public GameObject rightClaw;
     public GameObject attackPoint;
+
+    public ParticleSystem hitParticleSystem;
 
     private void Start()
     {
@@ -52,6 +62,9 @@ public class BossController : MonoBehaviour
 
         targetPosition = transform.position;
         skeletonAnimation.AnimationState.Complete += HandleAnimationEnd;
+
+        // Initialize currentHP to maxHP
+        currentHP = maxHP;
     }
 
     private void Update()
@@ -64,7 +77,6 @@ public class BossController : MonoBehaviour
 
         if ((IsPlayerInRange()) && !isAttacking && Time.time >= nextAttackTime)
         {
-            currentState = CharacterState.Attack;
             Attack();
             nextAttackTime = Time.time + attackCooldown;
         }
@@ -74,6 +86,9 @@ public class BossController : MonoBehaviour
             HandleStateChanged();
         }
         previousState = currentState;
+
+        //Check Dead
+        Dead();
     }
 
     private void ChasePlayer()
@@ -179,7 +194,7 @@ public class BossController : MonoBehaviour
                     // Apply the explosion force
                     StartCoroutine(ApplyExplosionForce(rb, pushDirection));
                 }
-                playerController.TakeDamage(10f);
+                playerController.TakeDamage(normalAttackDamage);
             }
         }
 
@@ -187,10 +202,40 @@ public class BossController : MonoBehaviour
         StartCoroutine(AttackTimeout());
     }
 
+    public void TakeDamage(float damage)
+    {
+        CurrentHP -= damage;
+        Debug.Log("Take: " + damage + " Boss HP: " + CurrentHP);
+
+        // Play the particle system
+        if (hitParticleSystem != null)
+        {
+            // Instantiate the particle system at the boss's position with a random offset
+            Vector3 bossPosition = transform.position;
+            Vector3 randomOffset = new Vector3(Random.Range(-0.5f, 0.5f), Random.Range(-0.5f, 0.5f), 0f);
+            Vector3 particleSystemPosition = bossPosition + randomOffset;
+
+            // Instantiate the particle system
+            ParticleSystem instantiatedParticleSystem = Instantiate(hitParticleSystem, particleSystemPosition, Quaternion.identity);
+
+            // Play the instantiated particle system
+            instantiatedParticleSystem.Play();
+        }
+    }
+
+    public void Dead()
+    {
+        if (currentHP <= 0)
+        {
+            Debug.Log("Boss Defeated");
+            Destroy(gameObject);
+        }
+    }
+
     private IEnumerator ApplyExplosionForce(Rigidbody2D rb, Vector2 pushDirection)
     {
         // Apply the initial explosion force
-        rb.AddForce(pushDirection * 5f, ForceMode2D.Impulse);
+        rb.AddForce(pushDirection * 10f, ForceMode2D.Impulse);
 
         // Wait for a specified amount of time
         yield return new WaitForSeconds(0.25f); // Adjust the delay as needed

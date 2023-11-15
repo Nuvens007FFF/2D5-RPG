@@ -26,7 +26,8 @@ public class SwordParticleSystemTrail : MonoBehaviour
         ParticleSystemRenderer renderer = trail.GetComponent<ParticleSystemRenderer>();
         renderer.material.mainTextureScale = new Vector2(2.0f, 1.0f); // Increase the tiling of the texture
 
-        trail.Stop();
+        EndTrail();
+        ClearTrail();
     }
 
     public void StartTrail()
