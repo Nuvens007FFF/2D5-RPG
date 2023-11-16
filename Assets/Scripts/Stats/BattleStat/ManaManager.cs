@@ -15,7 +15,7 @@ public class ManaManager : HealthManager
     }
     private void Start()
     {
-        Mana = UpdateStatCharacter.instance.Mp;
+        Mana = UpdateStatCharacter.instance.Mp * 10f;
         maxMana = Mana;
         RegenMpManager.UpdateRegenMp += PlusMana;
         

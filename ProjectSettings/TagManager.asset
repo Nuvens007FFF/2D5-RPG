@@ -11,6 +11,8 @@ TagManager:
   - AGI
   - Boss
   - Coin
+  - FxTemporaire
+  - BossObject
   layers:
   - Default
   - TransparentFX

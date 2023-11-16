@@ -29,6 +29,17 @@ public class SwordController : MonoBehaviour
         weaponCollider.enabled = false;
     }
 
+    public IEnumerator UseSkill(float duration = 0.3f)
+    {
+        //Temporary disable the sword sprite
+        SpriteRenderer spriteRenderer = gameObject.transform.GetComponent<SpriteRenderer>();
+        spriteRenderer.enabled = false;
+
+        yield return new WaitForSeconds(duration);
+        spriteRenderer.enabled = true;
+    }
+
+
     public IEnumerator SwingSword(Direction attackDirection, GameObject frontPivot, GameObject backPivot, GameObject rightPivot, GameObject defaultPivot)
     {
         float totalSwingDuration = 0.3f;
