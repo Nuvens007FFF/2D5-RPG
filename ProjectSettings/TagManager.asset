@@ -10,6 +10,9 @@ TagManager:
   - RegenMP
   - AGI
   - Boss
+  - Coin
+  - FxTemporaire
+  - BossObject
   layers:
   - Default
   - TransparentFX

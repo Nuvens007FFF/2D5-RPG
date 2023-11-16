@@ -4,9 +4,10 @@ using UnityEngine;
 
 public class CameraFollow : MonoBehaviour
 {
-    public float smoothSpeed = 0.125f;
+    public float smoothTime = 0.3f;
     public Vector3 offset;
     private Transform playerTransform;
+    private Vector3 velocity = Vector3.zero;
 
     private void Start()
     {
@@ -37,7 +38,7 @@ public class CameraFollow : MonoBehaviour
         else
         {
             // Log an error if the player GameObject was not found
-            Debug.Log("Player GameObject not found in scene!");
+            Debug.LogError("Player GameObject not found in scene!");
         }
     }
 
@@ -48,8 +49,9 @@ public class CameraFollow : MonoBehaviour
             Vector3 desiredPosition = playerTransform.position + offset;
             // Keep the camera at its original z position
             desiredPosition.z = transform.position.z;
-            Vector3 smoothedPosition = Vector3.Lerp(transform.position, desiredPosition, smoothSpeed);
-            transform.position = smoothedPosition;
+
+            // Use SmoothDamp to interpolate between current position and desired position
+            transform.position = Vector3.SmoothDamp(transform.position, desiredPosition, ref velocity, smoothTime);
         }
     }
 }

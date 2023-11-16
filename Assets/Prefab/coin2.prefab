@@ -27,7 +27,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2657440113839330188}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 3.44, y: 0, z: 0}
+  m_LocalPosition: {x: 2.72, y: 0, z: 0}
   m_LocalScale: {x: 0.2, y: 0.2, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -96,6 +96,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: afea8d56a19729f49b6ecc4398f751c1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  coinAmount: 100
+  flySpeed: 12.26
+  radius: 3.06
 --- !u!58 &2657440113839330189
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -109,6 +112,6 @@ CircleCollider2D:
   m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: -0.03703013, y: 0}
+  m_Offset: {x: 0.08202672, y: 0}
   serializedVersion: 2
-  m_Radius: 1.7629839
+  m_Radius: 15

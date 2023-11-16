@@ -31,7 +31,7 @@ Transform:
   m_LocalScale: {x: 2.2, y: 2.2, z: 2.2}
   m_Children: []
   m_Father: {fileID: 2285748670431256081}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &19135618
 SpriteRenderer:
@@ -155,7 +155,7 @@ Transform:
   - {fileID: 4283269754885837915}
   - {fileID: 3643673489236252500}
   m_Father: {fileID: 2285748670431256081}
-  m_RootOrder: 2
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &5856306503544750739
 SpriteRenderer:
@@ -251,7 +251,7 @@ GameObject:
   - component: {fileID: 6868759366052741462}
   m_Layer: 0
   m_Name: Boss
-  m_TagString: Boss
+  m_TagString: BossObject
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -288,6 +288,8 @@ MonoBehaviour:
   moveSpeed: 2.5
   attackRange: 1
   attackCooldown: 2
+  maxHP: 15000
+  normalAttackDamage: 5
   skeletonAnimation: {fileID: 2285748670135807324}
   playerTransform: {fileID: 0}
   turnCooldown: 0.75
@@ -296,6 +298,7 @@ MonoBehaviour:
   leftClaw: {fileID: 2285748671230087980}
   rightClaw: {fileID: 297293741294267443}
   attackPoint: {fileID: 2285748670431256080}
+  hitParticleSystem: {fileID: 7735884919146815185, guid: 79fddccde0a318b42acd190dd9631596, type: 3}
 --- !u!1 &2285748670000712854
 GameObject:
   m_ObjectHideFlags: 0
@@ -588,6 +591,7 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
   m_Children:
+  - {fileID: 4691239244260758221}
   - {fileID: 19135617}
   - {fileID: 2285748671230087981}
   - {fileID: 4781935139023810237}
@@ -712,7 +716,7 @@ Transform:
   - {fileID: 169157310917655378}
   - {fileID: 8652696593889114831}
   m_Father: {fileID: 2285748670431256081}
-  m_RootOrder: 1
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &2285748671230087983
 SpriteRenderer:
@@ -796,6 +800,36 @@ CapsuleCollider2D:
   m_Offset: {x: 0, y: -5}
   m_Size: {x: 2, y: 8}
   m_Direction: 0
+--- !u!1 &2481973099521023667
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4691239244260758221}
+  m_Layer: 0
+  m_Name: Center
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4691239244260758221
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2481973099521023667}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 2, z: 0}
+  m_LocalScale: {x: 2, y: 2, z: 2}
+  m_Children: []
+  m_Father: {fileID: 2285748670431256081}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2513890885359815859
 GameObject:
   m_ObjectHideFlags: 0
@@ -970,7 +1004,7 @@ Transform:
   m_Children:
   - {fileID: 7550066209001034337}
   m_Father: {fileID: 2285748670431256081}
-  m_RootOrder: 3
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &2225417726523023481
 SpriteRenderer:
@@ -1210,7 +1244,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 2285748670431256081}
-  m_RootOrder: 4
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!60 &6216745900697127731
 PolygonCollider2D:

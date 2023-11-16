@@ -13,7 +13,7 @@ public class RegenMpManager : MonoBehaviour
 
     private void Start()
     {
-        _regenMp = UpdateStatCharacter.instance.RegenMp;
+        _regenMp = UpdateStatCharacter.instance.RegenMp * 0.5f;
         //Debug.Log("RegenMp = " + _regenMp);
         currentTime = timeRegenMp;
         HealthManager.CharacterDied += CharacterDied;

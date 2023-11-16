@@ -17,7 +17,7 @@ public class HealthManager : MonoBehaviour
 
     private void Start()
     {
-        Health = UpdateStatCharacter.instance.Hp;
+        Health = UpdateStatCharacter.instance.Hp * 10f;
         maxHealth = Health;
         //Debug.Log("MaxHealth = " + maxHealth + " / " + "Health = " + Health);
     }
