@@ -82,6 +82,7 @@ public class PlayerController : MonoBehaviour
     private bool allowSkill4 = false;
     private bool isSkill4Active = false;
     private float skill4CurrentBossHP = 0;
+    private bool UnlockSKill4;
 
     private void Start()
     {
@@ -121,6 +122,11 @@ public class PlayerController : MonoBehaviour
         skill1Damage = UpdateStatCharacter.instance.Atk * 1f;
         skill3Damage = UpdateStatCharacter.instance.Atk * 1.5f;
         skill4EnergyGainPerHit = UpdateStatCharacter.instance.RegenMp * 0.25f;
+        //Update Skill Upgrade
+        skill1Cooldown = UpdateStatCharacter.instance.CoolDownQ;
+        skill3Cooldown = UpdateStatCharacter.instance.CoolDownE;
+        skill2Duration = UpdateStatCharacter.instance.DurationW;
+        UnlockSKill4 = UpdateStatCharacter.instance.UnLockSkillR;
 
         GameObject healthBarObject = GameObject.Find("HealthBar");
         if (healthBarObject != null)

@@ -2,6 +2,7 @@ using UnityEngine;
 using Spine.Unity;
 using System.Collections;
 using CharacterEnums;
+using System;
 
 public class BossController : MonoBehaviour
 {
@@ -12,6 +13,7 @@ public class BossController : MonoBehaviour
     private float currentHP;
     private float initialWaitTime = 3f; // Adjust the initial delay as needed
     private float currentWaitTime = 0f;
+    private float lastPercentTage ;
 
     public float CurrentHP
     {
@@ -42,6 +44,7 @@ public class BossController : MonoBehaviour
     public GameObject attackPoint;
 
     public ParticleSystem hitParticleSystem;
+    public static event Action DropCoinEvent;
 
     private void Start()
     {
@@ -68,6 +71,7 @@ public class BossController : MonoBehaviour
 
         // Initialize currentHP to maxHP
         currentHP = maxHP;
+        lastPercentTage = currentHP / currentHP * 100f;
     }
 
     private void Update()
@@ -213,18 +217,24 @@ public class BossController : MonoBehaviour
         // Start the attack timeout coroutine
         StartCoroutine(AttackTimeout());
     }
-
     public void TakeDamage(float damage)
     {
         CurrentHP -= damage;
         Debug.Log("Take: " + damage + " Boss HP: " + CurrentHP);
+        // DropCoin
+        var currentHpPercent = currentHP / maxHP * 100;
+        if( currentHpPercent <= lastPercentTage - 10f)
+        {
+            if (DropCoinEvent != null) DropCoinEvent();
+            lastPercentTage -= 10f;
+        }
 
         // Play the particle system
         if (hitParticleSystem != null)
         {
             // Instantiate the particle system at the boss's position with a random offset
             Vector3 bossPosition = transform.position;
-            Vector3 randomOffset = new Vector3(Random.Range(-0.5f, 0.5f), Random.Range(-0.5f, 0.5f), 0f);
+            Vector3 randomOffset = new Vector3(UnityEngine.Random.Range(-0.5f, 0.5f),UnityEngine.Random.Range(-0.5f, 0.5f), 0f);
             Vector3 particleSystemPosition = bossPosition + randomOffset;
 
             // Instantiate the particle system

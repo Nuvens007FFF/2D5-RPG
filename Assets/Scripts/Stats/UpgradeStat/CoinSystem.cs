@@ -8,7 +8,7 @@ public class CoinSystem : MonoBehaviour
     public static event Action<float> CoinUpdated;
     public static event Action<float> CoinUpdatedUI;
 
-    private float _coinIndex = 70000f  ;
+    private float _coinIndex = 8000f  ;
     private float coinInBattle ;
     public float CoinIndex
     {   
@@ -24,19 +24,26 @@ public class CoinSystem : MonoBehaviour
         HealthManager.CharacterDied += SummaryCoin;
         Coin.TakeCoinInBattle += TakeCoinInBattle;
         coinInBattle = 0f;
-        if (!File.Exists(GetCoinFilePath()))
+        if (!File.Exists(GetFilePath()))
         {
-            CreateFileFormCoin();
+            CreateFileAndSaveData();
         }
-        LoadCoinData();
+        LoadFile();
     }
-    
+    public bool CheckCoin(float coinRequired)
+    {
+        if (CoinIndex >= coinRequired)
+        {
+            return true;
+        }
+        return false;
+    }
     public bool GetCoin(float coinRequired)
     {
         if(CoinIndex >= coinRequired)
         {
             CoinIndex -= (float)Math.Round(coinRequired);
-            SaveCoinData();
+            SaveFile();
             return true;
         }
         return false;
@@ -57,17 +64,16 @@ public class CoinSystem : MonoBehaviour
         if (coinInBattle == 0) return;
         Debug.Log("SummaryCoin");
         CoinIndex += coinInBattle;
-        SaveCoinData();
+        SaveFile();
         coinInBattle = 0;
     }
-    void LoadCoinData()
+    void LoadFile()
     {
-        string filePath = Path.Combine(Application.persistentDataPath, "FormCoin.Json");
-        if (File.Exists(filePath))
+        if (File.Exists(GetFilePath()))
         {
             try
             {
-                string jsonCOin = File.ReadAllText(filePath);
+                string jsonCOin = File.ReadAllText(GetFilePath());
                 FormCoin formCoin = JsonUtility.FromJson<FormCoin>(jsonCOin);
                 _coinIndex = formCoin.coinID;
             }
@@ -78,21 +84,19 @@ public class CoinSystem : MonoBehaviour
         }
         CoinUpdated?.Invoke(CoinIndex);
     }
-    void SaveCoinData()
+    void SaveFile()
     {
-        FormCoin formCoin = new FormCoin { coinID = CoinIndex };
-        string jsonCoin = JsonUtility.ToJson(formCoin, true);
-        File.WriteAllText(Application.persistentDataPath + "/FormCoin.Json", jsonCoin);
+        CreateFileAndSaveData();
         CoinUpdated?.Invoke(CoinIndex);
     }
-    void CreateFileFormCoin()
+    void CreateFileAndSaveData()
     {
         FormCoin formCoin = new FormCoin { coinID = CoinIndex };
         string jsonCoin = JsonUtility.ToJson(formCoin, true);
-        string filePath = Path.Combine(Application.persistentDataPath, "FormCoin.Json");
+        string filePath = GetFilePath();
         File.WriteAllText(filePath, jsonCoin);
     }
-    private string GetCoinFilePath()
+    private string GetFilePath()
     {   
         return Path.Combine(Application.persistentDataPath, "FormCoin.Json");
     }

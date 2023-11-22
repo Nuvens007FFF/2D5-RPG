@@ -3,13 +3,19 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class CoinPool : MonoBehaviour
-{
+{   
+    public static CoinPool instance;
     public GameObject coin;
     public int countCoinInitial;
     public List<GameObject> listCoin = new List<GameObject>();
     void Start()
     {
+        BossController.DropCoinEvent += SplitOutCoin;
         CreateCoinPool();
+    }
+    private void OnDestroy()
+    {
+        BossController.DropCoinEvent -= SplitOutCoin;
     }
     void CreateCoinPool()
     {
@@ -24,7 +30,6 @@ public class CoinPool : MonoBehaviour
                 listCoin.Add(_coin);
             }
 
-            SplitOutCoin();
         }
     }
     public GameObject AppearCoin()
@@ -44,8 +49,11 @@ public class CoinPool : MonoBehaviour
         for (int i = 0; i < countCoinInitial; i++)
         {
             var obj = AppearCoin();
-            obj.transform.position = new Vector2(Random.Range(6, 10), Random.Range(0, 6));
-            obj.SetActive(true);
+            if(obj != null)
+            {
+                obj.transform.position = new Vector2(Random.Range(-8, 8), Random.Range(-9, 11));
+                obj.SetActive(true);
+            }
         }
     }
 }
