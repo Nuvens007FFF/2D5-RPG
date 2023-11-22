@@ -19,9 +19,19 @@ public class HealthManager : MonoBehaviour
     {
         Health = UpdateStatCharacter.instance.Hp * 10f;
         maxHealth = Health;
+        ItemBattle.UsePotionEvent += HealFromPotion;
         //Debug.Log("MaxHealth = " + maxHealth + " / " + "Health = " + Health);
     }
-
+    private void OnDestroy()
+    {
+        ItemBattle.UsePotionEvent -= HealFromPotion;
+    }
+    public void HealFromPotion(float Amount)
+    {   
+        if(Amount <= 0) return;
+        Health = maxHealth;
+        CalculatePercent();
+    }
     public void TakeDamage(float damage)
     {
         if (Health <= 0) 

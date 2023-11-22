@@ -18,10 +18,21 @@ public class ManaManager : HealthManager
         Mana = UpdateStatCharacter.instance.Mp * 10f;
         maxMana = Mana;
         RegenMpManager.UpdateRegenMp += PlusMana;
+        ItemBattle.UseManaEvent += RestoreMana;
         
         //Debug.Log("MaxMana = " + maxMana + " / " + "Mana = " + Mana);
     }
-
+    private void OnDestroy()
+    {
+        RegenMpManager.UpdateRegenMp -= PlusMana;
+        ItemBattle.UseManaEvent -= RestoreMana;
+    }
+    public void RestoreMana(float Amount)
+    {   
+        if(Amount <= 0) { return; }
+        Mana = maxMana;
+        CalculatePercent();
+    }
     public  void MinusMana(float manaIndex)
     {
         if (Mana <= 0) { return; }
