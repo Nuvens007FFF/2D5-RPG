@@ -1,5 +1,6 @@
 using UnityEngine;
 using Spine.Unity;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using CharacterEnums;
@@ -15,6 +16,7 @@ public class BossController : MonoBehaviour
     private float currentHP;
     private float initialWaitTime = 3f; // Adjust the initial delay as needed
     private float currentWaitTime = 0f;
+    private float lastPercentTage;
 
     public float CurrentHP
     {
@@ -55,6 +57,7 @@ public class BossController : MonoBehaviour
     public GameObject attackRangeCollider;
 
     public ParticleSystem hitParticleSystem;
+    public static event Action DropCoinEvent;
     public GameObject BossRoar;
     public GameObject Skill1;
     public GameObject indicatorSkill2;
@@ -114,6 +117,7 @@ public class BossController : MonoBehaviour
 
         // Initialize currentHP to maxHP
         currentHP = maxHP;
+        lastPercentTage = currentHP / currentHP * 100f;
     }
 
     private void Update()
@@ -191,7 +195,7 @@ public class BossController : MonoBehaviour
             UseSkill2();
 
 
-            nextSkill2Time = Time.time + skill2CD + (Random.Range(-5f, 5f));
+            nextSkill2Time = Time.time + skill2CD + (UnityEngine.Random.Range(-5f, 5f));
         }
 
         if (currentState != previousState)
@@ -328,7 +332,7 @@ public class BossController : MonoBehaviour
         float probabilitySkill1 = 0.7f; // 70% chance
 
         // Generate a random value between 0 and 1
-        float randomValue = Random.value;
+        float randomValue = UnityEngine.Random.value;
 
         // Execute the chosen special skill based on probabilities
         if (randomValue < probabilitySkill4)
@@ -343,7 +347,7 @@ public class BossController : MonoBehaviour
 
     private void UseRandomSkill()
     {
-        float randomValue = Random.value;
+        float randomValue = UnityEngine.Random.value;
 
         // Adjust the probabilities as needed
         if (randomValue < 0.2f && consecutiveSkill5Count < 1 && isPhase3) // 20% chance
@@ -387,8 +391,8 @@ public class BossController : MonoBehaviour
             while (attempts < maxAttempts)
             {
                 // Calculate grid coordinates
-                int gridX = Mathf.FloorToInt(Random.Range(-7.5f, 7.5f) / gridSize);
-                int gridY = Mathf.FloorToInt(Random.Range(-7.75f, 7.75f) / gridSize);
+                int gridX = Mathf.FloorToInt(UnityEngine.Random.Range(-7.5f, 7.5f) / gridSize);
+                int gridY = Mathf.FloorToInt(UnityEngine.Random.Range(-7.75f, 7.75f) / gridSize);
 
                 // Calculate the position of the bomb at the center of the grid cell with random offset
                 bombPosition = new Vector2(
@@ -585,16 +589,16 @@ public class BossController : MonoBehaviour
     }
     private Vector3 GetValidTeleportPosition(float borderSize, Vector3 playerPosition)
     {
-        float randomX = Random.Range(0, 2) == 0 ? -playerPosition.x : playerPosition.x;
-        float randomY = Random.Range(0, 2) == 0 ? -playerPosition.y : playerPosition.y;
+        float randomX = UnityEngine.Random.Range(0, 2) == 0 ? -playerPosition.x : playerPosition.x;
+        float randomY = UnityEngine.Random.Range(0, 2) == 0 ? -playerPosition.y : playerPosition.y;
 
-        if (Random.value < 0.5f)
+        if (UnityEngine.Random.value < 0.5f)
         {
-            randomX = Random.Range(0, 2) == 0 ? (-borderSize) : (borderSize);
+            randomX = UnityEngine.Random.Range(0, 2) == 0 ? (-borderSize) : (borderSize);
         }
         else
         {
-            randomY = Random.Range(0, 2) == 0 ? (-borderSize) : (borderSize);
+            randomY = UnityEngine.Random.Range(0, 2) == 0 ? (-borderSize) : (borderSize);
         }
 
         if (randomX >= borderSize)
@@ -835,13 +839,20 @@ public class BossController : MonoBehaviour
     {
         CurrentHP -= damage;
         Debug.Log("Take: " + damage + " Boss HP: " + CurrentHP);
+        // DropCoin
+        var currentHpPercent = currentHP / maxHP * 100;
+        if (currentHpPercent <= lastPercentTage - 10f)
+        {
+            if (DropCoinEvent != null) DropCoinEvent();
+            lastPercentTage -= 10f;
+        }
 
         // Play the particle system
         if (hitParticleSystem != null)
         {
             // Instantiate the particle system at the boss's position with a random offset
             Vector3 bossPosition = transform.position;
-            Vector3 randomOffset = new Vector3(Random.Range(-0.5f, 0.5f), Random.Range(-0.5f, 0.5f), 0f);
+            Vector3 randomOffset = new Vector3(UnityEngine.Random.Range(-0.5f, 0.5f), UnityEngine.Random.Range(-0.5f, 0.5f), 0f);
             Vector3 particleSystemPosition = bossPosition + randomOffset;
 
             // Instantiate the particle system

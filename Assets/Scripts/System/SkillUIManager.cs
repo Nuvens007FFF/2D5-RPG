@@ -13,10 +13,11 @@ public class SkillUIManager : MonoBehaviour
     public GameObject skillE2;
 
     // Set these values based on your game design
-    public float skillQCooldown = 1.5f;
-    public float skillWCooldown = 10f;
-    public float skillECooldown = 1.5f;
-    public float skillRMaxEnergy = 100f;
+    private float skillQCooldown = 1.5f;
+    private float skillWCooldown = 10f;
+    private float skillECooldown = 1.5f;
+    private float skillRMaxEnergy = 100f;
+    private bool UnlockSkill4 = false;
     public bool isRready = false;
     public bool QECombo = false;
     public bool EQCombo = false;
@@ -37,6 +38,9 @@ public class SkillUIManager : MonoBehaviour
         skillWTimer = 0f;
         skillETimer = 0f;
         skillREnergy = 0f;
+        skillQCooldown = UpdateStatCharacter.instance.CoolDownQ;
+        skillECooldown = UpdateStatCharacter.instance.CoolDownE;
+        UnlockSkill4 = UpdateStatCharacter.instance.UnLockSkillR;
     }
 
     // Update is called once per frame
@@ -57,7 +61,7 @@ public class SkillUIManager : MonoBehaviour
         skillQ.interactable = skillQTimer <= 0f;
         skillW.interactable = skillWTimer <= 0f;
         skillE.interactable = skillETimer <= 0f;
-        skillR.interactable = isRready;
+        skillR.interactable = (isRready && UnlockSkill4);
     }
 
     void UpdateSkillCombo()
@@ -86,7 +90,7 @@ public class SkillUIManager : MonoBehaviour
         skillQCooldownText.text = skillQTimer > 0f ? skillQTimer.ToString("F1") : "";
         skillWCooldownText.text = skillWTimer > 0f ? skillWTimer.ToString("F1") : "";
         skillECooldownText.text = skillETimer > 0f ? skillETimer.ToString("F1") : "";
-        skillREnergyText.text = skillREnergy < 100f ? skillREnergy.ToString("F1") : "";
+        skillREnergyText.text = skillREnergy < skillRMaxEnergy ? skillREnergy.ToString("F1") : "";
     }
 
     public void SkillQUsed()

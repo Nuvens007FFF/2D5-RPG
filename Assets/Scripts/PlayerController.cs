@@ -93,6 +93,7 @@ public class PlayerController : MonoBehaviour
     private bool allowSkill4 = false;
     private bool isSkill4Active = false;
     private float skill4CurrentBossHP = 0;
+    private bool UnlockSkill4;
     private bool applyInWaterDebuff = false;
 
     private void Start()
@@ -148,6 +149,11 @@ public class PlayerController : MonoBehaviour
         skill1Damage = UpdateStatCharacter.instance.Atk * 1f;
         skill3Damage = UpdateStatCharacter.instance.Atk * 1.5f;
         skill4EnergyGainPerHit = UpdateStatCharacter.instance.RegenMp * 0.25f;
+        //Update Skill Upgrade
+        skill1Cooldown = UpdateStatCharacter.instance.CoolDownQ;
+        skill3Cooldown = UpdateStatCharacter.instance.CoolDownE;
+        skill2Duration = UpdateStatCharacter.instance.DurationW;
+        UnlockSkill4 = UpdateStatCharacter.instance.UnLockSkillR;
 
         GameObject healthBarObject = GameObject.Find("HealthBar");
         if (healthBarObject != null)
@@ -228,8 +234,8 @@ public class PlayerController : MonoBehaviour
             ApplyDamageOverTime();
             if (!applyInWaterDebuff)
             {
-                transform.Find("Model").gameObject.SetActive(false);
-                transform.Find("DefaultPivot/Weapon").gameObject.SetActive(false);
+                transform.Find("Model").localScale = new Vector3(0.0001f, 0.0001f, 0.0001f);
+                transform.Find("DefaultPivot/Weapon").localScale = new Vector3(0.0001f, 0.0001f, 0.0001f);
                 Instantiate(FallVFX, transform.position, Quaternion.identity);
                 applyInWaterDebuff = true;
             }
@@ -238,8 +244,8 @@ public class PlayerController : MonoBehaviour
         {
             if (applyInWaterDebuff)
             {
-                transform.Find("Model").gameObject.SetActive(true);
-                transform.Find("DefaultPivot/Weapon").gameObject.SetActive(true);
+                transform.Find("Model").localScale = new Vector3(0.35f, 0.35f, 0.35f);
+                transform.Find("DefaultPivot/Weapon").localScale = new Vector3(0.26f, 0.26f, 0.26f);
                 applyInWaterDebuff = false;
             }
         }
@@ -383,7 +389,7 @@ public class PlayerController : MonoBehaviour
         }
 
         // Press R to use Skill_4
-        if (Input.GetKeyDown(KeyCode.R) && allowSkill4 && !isAttacking)
+        if (Input.GetKeyDown(KeyCode.R) && allowSkill4 && !isAttacking && UnlockSkill4)
         {
             UseSkill_4();
         }
@@ -708,13 +714,13 @@ public class PlayerController : MonoBehaviour
             GameObject skillInstance = Instantiate(Skill_2, transform.position, Quaternion.identity);
 
             // Set it as a child of the player
-            skillInstance.transform.parent = transform;
+            skillInstance.transform.parent = transform.Find("Model");
 
             // Set the local position relative to the player (adjust as needed)
             skillInstance.transform.localPosition = new Vector3(0f, 0f, 0f);
 
             // Set the scale of the skillInstance
-            skillInstance.transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
+            skillInstance.transform.localScale = new Vector3(1.4f, 1.4f, 1.4f);
 
             // Set isSkill2Active to true
             isSkill2Active = true;
@@ -1062,7 +1068,7 @@ public class PlayerController : MonoBehaviour
             }                   
 
             // Set it as a child of the player
-            skillInstance.transform.parent = transform;
+            skillInstance.transform.parent = transform.Find("Model");
             skillInstance2.transform.parent = Camera.main.transform;
             skillInstance2.transform.localPosition = new Vector3(0f, 0f, 20f);
             //Set mark as a child of boss
@@ -1074,7 +1080,7 @@ public class PlayerController : MonoBehaviour
             skillInstance.transform.localPosition = new Vector3(0.2f, 0.2f, 0f);
 
             // Set the scale of the skillInstance
-            skillInstance.transform.localScale = new Vector3(0.75f, 0.75f, 0.75f);
+            skillInstance.transform.localScale = new Vector3(2f, 2f, 2f);
 
             // Set isSkill4Active to true
             isSkill4Active = true;
@@ -1114,24 +1120,27 @@ public class PlayerController : MonoBehaviour
 
         foreach (Collider2D collider in colliders)
         {
-            if (collider.CompareTag("Destroyable"))
+            if (collider != null)
             {
-                // Gradually destroy the object
-                float startTime = Time.time;
-                float destroyDuration = 0.01f; // Adjust the duration of destruction as needed
-
-                while (Time.time - startTime < destroyDuration)
+                if (collider.CompareTag("Destroyable"))
                 {
-                    float progress = (Time.time - startTime) / destroyDuration;
-                    collider.transform.localScale = Vector3.Lerp(Vector3.one, Vector3.zero, progress);
-                    yield return null;
+                    // Gradually destroy the object
+                    float startTime = Time.time;
+                    float destroyDuration = 0.01f; // Adjust the duration of destruction as needed
+
+                    while (Time.time - startTime < destroyDuration)
+                    {
+                        float progress = (Time.time - startTime) / destroyDuration;
+                        collider.transform.localScale = Vector3.Lerp(Vector3.one, Vector3.zero, progress);
+                        yield return null;
+                    }
+
+                    // Instantiate Flame at the destroyed object's position
+                    Instantiate(TeleportVFX, collider.transform.position, Quaternion.identity);
+
+                    // Destroy the object after the destruction animation
+                    Destroy(collider.gameObject);
                 }
-
-                // Instantiate Flame at the destroyed object's position
-                Instantiate(TeleportVFX, collider.transform.position, Quaternion.identity);
-
-                // Destroy the object after the destruction animation
-                Destroy(collider.gameObject);
             }
         }
     }

@@ -27,8 +27,8 @@ public class HealthManager : MonoBehaviour
         ItemBattle.UsePotionEvent -= HealFromPotion;
     }
     public void HealFromPotion(float Amount)
-    {   
-        if(Amount <= 0) return;
+    {
+        if(Amount < 0) return;
         Health = maxHealth;
         CalculatePercent();
     }

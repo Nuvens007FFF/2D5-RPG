@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.IO;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class ItemBattle : MonoBehaviour
 {
@@ -13,6 +14,12 @@ public class ItemBattle : MonoBehaviour
     [SerializeField] private int _maxMana ;
     [SerializeField] private int _maxPotion ;
 
+    public Button item1;
+    public Button item2;
+
+    public Text item1Text;
+    public Text item2Text;
+
     private void Start()
     {
         FileManager();
@@ -21,7 +28,19 @@ public class ItemBattle : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Alpha1)){UsePotion();}
         else if (Input.GetKeyDown(KeyCode.Alpha2)) { UseManaItem(); }
+
+        UpdateUI();
     }
+
+    void UpdateUI()
+    {
+        item1.interactable = _potionAmount > 0f;
+        item2.interactable = _manaAmount > 0f;
+
+        item1Text.text = "" + _potionAmount;
+        item2Text.text = "" + _manaAmount;
+    }
+
     void FileManager()
     {
         if (!File.Exists(GetFilePath()))
