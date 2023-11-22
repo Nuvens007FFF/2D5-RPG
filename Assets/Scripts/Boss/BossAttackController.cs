@@ -14,9 +14,6 @@ public class BossAttackController : MonoBehaviour
         // Get the Collider2D component on the weapon GameObject
         weaponCollider = GetComponent<Collider2D>();
         if (weaponCollider == null) Debug.LogError("Collider2D not found on weapon!");
-
-        // Disable the trigger collider initially
-        weaponCollider.enabled = false;
     }
 
     public void EnableTriggerCollider()
@@ -30,7 +27,7 @@ public class BossAttackController : MonoBehaviour
         // Disable the trigger collider on the weapon
         weaponCollider.enabled = false;
     }
-    public IEnumerator SwingClaw(Direction attackDirection)
+    public IEnumerator SwingClaw(Direction attackDirection, bool left)
     {
         float totalSwingDuration = 0.35f;
         float anticipationDuration = 0.02f; // adjust this to a lower value
@@ -46,8 +43,17 @@ public class BossAttackController : MonoBehaviour
                 break;
         }
 
-        float startAngle = Random.Range(-135.0f, -70.0f);
-        float endAngle = Random.Range(70.0f, 135.0f);
+        //float startAngle = Random.Range(70.0f, 135.0f);
+        //float endAngle = Random.Range(-135.0f, -70.0f);
+        float startAngle = 90f;
+        float endAngle = -90f;
+        if (left)
+        {
+            //startAngle = Random.Range(-135.0f, -70.0f);
+            //endAngle = Random.Range(70.0f, 135.0f);
+            startAngle = -90f;
+            endAngle = 90f;
+        }
 
         // Rotate slightly in the opposite direction for anticipation
         float anticipationAngle = startAngle - 10.0f;
@@ -72,7 +78,6 @@ public class BossAttackController : MonoBehaviour
         clawTrail1.EndTrail();
         clawTrail2.EndTrail();
         clawTrail3.EndTrail();
-        DisableTriggerCollider();
         yield return new WaitForSeconds(swingDuration);
 
         gameObject.transform.localRotation = Quaternion.identity;

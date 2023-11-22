@@ -8,6 +8,8 @@ public class CameraFollow : MonoBehaviour
     public Vector3 offset;
     private Transform playerTransform;
     private Vector3 velocity = Vector3.zero;
+    private float initialWaitTime = 0.1f; // Adjust the initial delay as needed
+    private float currentWaitTime = 0f;
 
     private void Start()
     {
@@ -17,6 +19,14 @@ public class CameraFollow : MonoBehaviour
 
     private void Update()
     {
+        currentWaitTime += Time.deltaTime;
+
+        // Check if the initial delay has passed
+        if (currentWaitTime < initialWaitTime)
+        {
+            // Do nothing during the initial delay
+            return;
+        }
         // If the playerTransform is still null, try to find the player GameObject again
         if (playerTransform == null)
         {
@@ -38,7 +48,7 @@ public class CameraFollow : MonoBehaviour
         else
         {
             // Log an error if the player GameObject was not found
-            Debug.LogError("Player GameObject not found in scene!");
+            //Debug.LogError("Player GameObject not found in scene!");
         }
     }
 

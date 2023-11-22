@@ -6,11 +6,19 @@ using CharacterEnums;
 public class PlayerController : MonoBehaviour
 {
     public float moveSpeed = 3f;
-    private float mana = 10f;
+    public float actualMoveSpeed = 0f;
+    public bool isSlowed = false;
+    public float slowDuration = 0;
+    public float slowTime = 0;
+    public bool canNotBeSlow = false;
     public SkeletonAnimation skeletonAnimation;
     private Vector3 targetPosition;
     private Direction lastDirection;
     public ParticleSystem dashTrail;
+    private Rigidbody2D rb;
+    public SkillUIManager skillUI;
+    public GameObject landObject;
+    private Collider2D landCollider;
 
     public enum CharacterState { Idle, Run, Attack };
     private CharacterState currentState = CharacterState.Idle;
@@ -25,6 +33,7 @@ public class PlayerController : MonoBehaviour
     private BossController bossNianController;
     private float currentBossHP = 0;
     private float previousBossHP = 99999f;
+    private bool bossDied = false;
 
     public SwordController swordController;
     public GameObject frontPivot;
@@ -44,6 +53,8 @@ public class PlayerController : MonoBehaviour
     public GameObject FireMark; //Skill 4 VFX 
     public GameObject FireMarkExplosion; //Skill 4 VFX
     public GameObject MoveIndicator;
+    public GameObject Debuff;
+    public GameObject FallVFX;
     public float manaCostQ = 5f;
     public float manaCostW = 20f;
     public float manaCostE = 10f;
@@ -82,6 +93,7 @@ public class PlayerController : MonoBehaviour
     private bool allowSkill4 = false;
     private bool isSkill4Active = false;
     private float skill4CurrentBossHP = 0;
+    private bool applyInWaterDebuff = false;
 
     private void Start()
     {
@@ -92,6 +104,12 @@ public class PlayerController : MonoBehaviour
 
         // Find the player GameObject with the "BossObject" tag
         bossNian = GameObject.FindWithTag("BossObject");
+
+        // Find the land GameObject with the "Land" tag
+        landObject = GameObject.FindWithTag("Land");
+
+        //Get player Rigidbody2D
+        rb = GetComponent<Rigidbody2D>();
 
         // Check if the boss GameObject was found
         if (bossNian != null)
@@ -111,6 +129,14 @@ public class PlayerController : MonoBehaviour
         {
             Debug.LogError("bossNian GameObject is null");
         }
+        if (landObject != null)
+        {
+            landCollider = landObject.GetComponent<Collider2D>();
+        }
+        else
+        {
+            Debug.LogError("Land object not assigned!");
+        }
 
         targetPosition = transform.position;
         skeletonAnimation.AnimationState.Complete += HandleAnimationEnd;
@@ -118,6 +144,7 @@ public class PlayerController : MonoBehaviour
         HealthManager.CharacterDied += CharacterDied;
         //Update Stats
         moveSpeed = 2f + (UpdateStatCharacter.instance.Agi * 0.2f);
+        actualMoveSpeed = moveSpeed;
         skill1Damage = UpdateStatCharacter.instance.Atk * 1f;
         skill3Damage = UpdateStatCharacter.instance.Atk * 1.5f;
         skill4EnergyGainPerHit = UpdateStatCharacter.instance.RegenMp * 0.25f;
@@ -149,6 +176,20 @@ public class PlayerController : MonoBehaviour
         {
             Debug.LogError("ManaBar GameObject not found!");
         }
+
+        GameObject gameManagerObject = GameObject.Find("GameManager");
+        if (gameManagerObject != null)
+        {
+            skillUI = gameManagerObject.GetComponent<SkillUIManager>();
+            if (skillUI == null)
+            {
+                Debug.LogError("ManaManager component not found on ManaBar!");
+            }
+        }
+        else
+        {
+            Debug.LogError("ManaBar GameObject not found!");
+        }
     }
 
     private void CharacterDied()
@@ -170,6 +211,39 @@ public class PlayerController : MonoBehaviour
     private void Update()
     {
         if (isDied) { return; }
+
+        if(isSlowed)
+        {
+            Debuff.SetActive(true);
+            slowTime += Time.deltaTime;
+            if (slowTime > slowDuration)
+            {
+                RestoreSpeed();
+                slowTime = 0;
+            }
+        }
+
+        if (IsOutsideLand())
+        {
+            ApplyDamageOverTime();
+            if (!applyInWaterDebuff)
+            {
+                transform.Find("Model").gameObject.SetActive(false);
+                transform.Find("DefaultPivot/Weapon").gameObject.SetActive(false);
+                Instantiate(FallVFX, transform.position, Quaternion.identity);
+                applyInWaterDebuff = true;
+            }
+        }
+        else
+        {
+            if (applyInWaterDebuff)
+            {
+                transform.Find("Model").gameObject.SetActive(true);
+                transform.Find("DefaultPivot/Weapon").gameObject.SetActive(true);
+                applyInWaterDebuff = false;
+            }
+        }
+
         if (Input.GetMouseButtonDown(1) && !isAttacking && allowMoving) // Right mouse button clicked
         {
             SetNewTargetPosition(true);
@@ -186,6 +260,9 @@ public class PlayerController : MonoBehaviour
         //    nextAttackTime = Time.time + attackCooldown;
         //}
 
+        skillUI.EQCombo = isComboEQTimeRunning;
+        skillUI.QECombo = isComboQETimeRunning;
+
         // Press Q to use Skill_1
         if (Input.GetKeyDown(KeyCode.Q) && !isAttacking && Time.time >= nextSkill1Time)
         {
@@ -199,7 +276,7 @@ public class PlayerController : MonoBehaviour
                 // Start the combo timer or refresh if already active
                 if (!isComboQETimeRunning)
                 {
-                    isComboQETimeRunning = true;
+                    isComboQETimeRunning = true;                   
                 }
                 else
                 {
@@ -213,6 +290,7 @@ public class PlayerController : MonoBehaviour
             }
 
             // Set the time for the next skill 1
+            skillUI.SkillQUsed();
             nextSkill1Time = Time.time + skill1Cooldown;
         }
 
@@ -223,6 +301,7 @@ public class PlayerController : MonoBehaviour
             UseSkill_2();
 
             // Set the time for the next skill 1
+            skillUI.SkillWUsed();
             nextSkill2Time = Time.time + skill2Cooldown;
         }
 
@@ -231,6 +310,9 @@ public class PlayerController : MonoBehaviour
         {
             if (comboQEDuration > 0 && allowComboQE)
             {
+                rb.velocity = Vector2.zero;
+                // Remove angular velocity (rotational forces)
+                rb.angularVelocity = 0f;
                 // Use combo skill if the combo is active
                 UseComboSkill_3();
                 comboQEDuration = 0;
@@ -254,11 +336,17 @@ public class PlayerController : MonoBehaviour
             }
 
             // Set the time for the next skill 3
+            skillUI.SkillEUsed();
             nextSkill3Time = Time.time + skill3Cooldown;
         }
 
         // Update previousBossHP for the next frame
         previousBossHP = currentBossHP;
+
+        if(currentBossHP <= 0)
+        {
+            bossDied = true;
+        }
 
         // Update currentBossHP
         if (bossNianController != null)
@@ -267,9 +355,15 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
-            Debug.LogError("Boss GameObject Controller not found!");
-            //Update
-            bossNianController = bossNian.GetComponent<BossController>();
+            if (!bossDied)
+            {
+                Debug.LogError("Boss GameObject Controller not found!");
+                //Update
+                if (bossNian != null)
+                {
+                    bossNianController = bossNian.GetComponent<BossController>();
+                }
+            }
         }     
 
         // Check if the currentBossHP has changed
@@ -277,17 +371,19 @@ public class PlayerController : MonoBehaviour
         {
             // Boss has been hit, increase Skill_4 energy
             skill4Energy += skill4EnergyGainPerHit;
+            skillUI.skillREnergy = skill4Energy;
 
             // Ensure energy doesn't exceed the threshold
             skill4Energy = Mathf.Clamp(skill4Energy, 0f, skill4EnergyThreshold);
 
             // Check if Skill_4 can be activated
             allowSkill4 = skill4Energy >= skill4EnergyThreshold;
+            skillUI.isRready = allowSkill4;
             Debug.Log("Energy: " + skill4Energy);
         }
 
-        // Press W to use Skill_4
-        if (Input.GetKeyDown(KeyCode.R) && allowSkill4)
+        // Press R to use Skill_4
+        if (Input.GetKeyDown(KeyCode.R) && allowSkill4 && !isAttacking)
         {
             UseSkill_4();
         }
@@ -332,6 +428,23 @@ public class PlayerController : MonoBehaviour
         }
 
         previousState = currentState;
+    }
+
+    private bool IsOutsideLand()
+    {
+        // Check if the player is outside the land area
+        Rigidbody2D playerRigidbody = GetComponent<Rigidbody2D>();
+
+        return landCollider != null && !landCollider.bounds.Contains(transform.position) && playerRigidbody != null && playerRigidbody.velocity.magnitude < 5f;
+    }
+
+    private void ApplyDamageOverTime()
+    {
+        // Apply damage over time when outside the land area
+        if (healthManager != null)
+        {
+            healthManager.TakeDamage(UpdateStatCharacter.instance.Hp * 1f * Time.deltaTime);
+        }
     }
 
     private void SetNewTargetPosition(bool mouseClicked = false)
@@ -384,7 +497,7 @@ public class PlayerController : MonoBehaviour
     {
         if ((targetPosition - transform.position).sqrMagnitude > 0.01f)
         {
-            transform.position = Vector3.MoveTowards(transform.position, targetPosition, moveSpeed * Time.deltaTime);
+            transform.position = Vector3.MoveTowards(transform.position, targetPosition, actualMoveSpeed * Time.deltaTime);
             return true;
         }
         return false;
@@ -542,8 +655,10 @@ public class PlayerController : MonoBehaviour
 
     private IEnumerator SlidePlayerBackward(float angle)
     {
+        Rigidbody2D playerRigidbody = GetComponent<Rigidbody2D>();
+        playerRigidbody.velocity = Vector2.zero;
         // Set the distance to slide backward (adjust as needed)
-        float slideDistance = 5f;
+        float slideDistance = 3f;
 
         // Calculate the backward direction based on the angle
         Vector3 backwardDirection = Quaternion.Euler(0f, 0f, angle) * Vector3.left;
@@ -658,7 +773,7 @@ public class PlayerController : MonoBehaviour
         float elapsedTime = 0f;
         float dashDuration = 0.3f;
         float dashSpeed = 20f;
-        float rigidbodyEnableDelay = 0.5f;
+        float rigidbodyEnableDelay = 0.1f;
 
         // Save the initial position of the player
         Vector3 initialPosition = transform.position;
@@ -668,6 +783,9 @@ public class PlayerController : MonoBehaviour
 
         // Get the player's Rigidbody2D component
         Rigidbody2D playerRigidbody = GetComponent<Rigidbody2D>();
+
+        // Store the player's original body type
+        RigidbodyType2D originalBodyType = playerRigidbody.bodyType;
 
         while (elapsedTime < dashDuration)
         {
@@ -728,7 +846,10 @@ public class PlayerController : MonoBehaviour
                         if (playerRigidbody != null)
                         {
                             playerRigidbody.velocity = Vector2.zero;
-                            playerRigidbody.simulated = false;
+                            //playerRigidbody.simulated = false;
+
+                            // Set the player's Rigidbody2D to kinematic during dash
+                            playerRigidbody.bodyType = RigidbodyType2D.Kinematic;
                         }
 
                         isDashing = false;
@@ -756,7 +877,8 @@ public class PlayerController : MonoBehaviour
         // Enable the Rigidbody2D after the delay
         if (playerRigidbody != null)
         {
-            playerRigidbody.simulated = true;
+            //playerRigidbody.simulated = true;
+            playerRigidbody.bodyType = originalBodyType;
 
             //Also clear trail
             dashTrail.Clear();
@@ -801,8 +923,11 @@ public class PlayerController : MonoBehaviour
         float elapsedTime = 0f;
         float dashDuration = 0.3f;
         float dashSpeed = 30f;
-        float rigidbodyEnableDelay = 0.5f;
+        float rigidbodyEnableDelay = 0.1f;
         float spawnInterval = 0.1f;
+
+        Transform bossRigidBody = bossNian.transform.Find("AttackPoint");
+        Rigidbody2D bossRigidbody = bossRigidBody.GetComponent<Rigidbody2D>();
 
         // Save the initial position of the player
         Vector3 initialPosition = transform.position;
@@ -813,7 +938,12 @@ public class PlayerController : MonoBehaviour
         // Get the player's Rigidbody2D component
         Rigidbody2D playerRigidbody = GetComponent<Rigidbody2D>();
 
-        playerRigidbody.simulated = false;
+       // playerRigidbody.simulated = false;
+        // Store the player's original body type
+        RigidbodyType2D originalBodyType = playerRigidbody.bodyType;
+
+        // Set the player's Rigidbody2D to kinematic during dash
+        playerRigidbody.bodyType = RigidbodyType2D.Kinematic;
 
         bool damageDealt = false;
 
@@ -848,12 +978,14 @@ public class PlayerController : MonoBehaviour
                             bossNianController.TakeDamage(skill3Damage * 1.5f);
                         }
                         damageDealt = true;
+
+                        // Disable the boss's Rigidbody temporarily
+                        if (bossRigidbody != null)
+                        {
+                            //bossRigidbody.simulated = false;
+                        }
                     }
                 }
-                //if (collider.CompareTag("Coin"))
-                //{
-                //    //Pick up the Coin
-                //}
             }
 
             // Spawn a prefab for each 0.1 seconds of dash duration
@@ -900,7 +1032,8 @@ public class PlayerController : MonoBehaviour
         // Enable the Rigidbody2D after the delay
         if (playerRigidbody != null)
         {
-            playerRigidbody.simulated = true;
+            playerRigidbody.bodyType = originalBodyType;
+            //playerRigidbody.simulated = true;
 
             // Also clear trail
             dashTrail.Clear();
@@ -922,13 +1055,17 @@ public class PlayerController : MonoBehaviour
             // Instantiate the Skill_4 prefab
             GameObject skillInstance = Instantiate(Skill_4, transform.position, Quaternion.identity);
             GameObject skillInstance2 = Instantiate(FlameCircle, transform.position, Quaternion.identity);
-            GameObject skillInstance3 = Instantiate(FireMark, bossNian.transform.position, Quaternion.identity);           
+            GameObject skillInstance3 = null;
+            if (bossNian.transform.position != null)
+            {
+                skillInstance3 = Instantiate(FireMark, bossNian.transform.position, Quaternion.identity);
+            }                   
 
             // Set it as a child of the player
             skillInstance.transform.parent = transform;
             skillInstance2.transform.parent = Camera.main.transform;
+            skillInstance2.transform.localPosition = new Vector3(0f, 0f, 20f);
             //Set mark as a child of boss
-            skillInstance3.transform.parent = bossNian.transform;
             Transform centerTransform = bossNian.transform.Find("AttackPoint/Center");
             skillInstance3.transform.parent = centerTransform;
             skillInstance3.transform.localPosition = new Vector3(0f, 0f, 0f);
@@ -941,6 +1078,9 @@ public class PlayerController : MonoBehaviour
 
             // Set isSkill4Active to true
             isSkill4Active = true;
+            //canNotBeSlow = true;
+            RestoreSpeed();
+            actualMoveSpeed = moveSpeed + 1f;
 
             // Get the AutoDestroy component and set the destroyDelay
             AutoDestroy autoDestroy = skillInstance.GetComponent<AutoDestroy>();
@@ -955,12 +1095,43 @@ public class PlayerController : MonoBehaviour
 
             // Start a coroutine to deactivate the skill after a certain duration (e.g., 10 seconds)
             StartCoroutine(DeactivateSkill4AfterDelay(skill4Duration));
+
+            StartCoroutine(DestroyObjectsAroundPlayer());
         }
         else
         {
             if (Skill_4 == null)
             {
                 Debug.LogError("Skill_4 prefab not assigned in the PlayerController!");
+            }
+        }
+    }
+
+    private IEnumerator DestroyObjectsAroundPlayer()
+    {
+        float radius = 20f; // Adjust the radius as needed
+        Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, radius);
+
+        foreach (Collider2D collider in colliders)
+        {
+            if (collider.CompareTag("Destroyable"))
+            {
+                // Gradually destroy the object
+                float startTime = Time.time;
+                float destroyDuration = 0.01f; // Adjust the duration of destruction as needed
+
+                while (Time.time - startTime < destroyDuration)
+                {
+                    float progress = (Time.time - startTime) / destroyDuration;
+                    collider.transform.localScale = Vector3.Lerp(Vector3.one, Vector3.zero, progress);
+                    yield return null;
+                }
+
+                // Instantiate Flame at the destroyed object's position
+                Instantiate(TeleportVFX, collider.transform.position, Quaternion.identity);
+
+                // Destroy the object after the destruction animation
+                Destroy(collider.gameObject);
             }
         }
     }
@@ -988,6 +1159,9 @@ public class PlayerController : MonoBehaviour
         Transform centerTransform = bossNian.transform.Find("AttackPoint/Center");
         skillInstance4.transform.parent = centerTransform;
         skillInstance4.transform.localPosition = new Vector3(0f, 0f, 0f);
+
+        canNotBeSlow = false;
+        actualMoveSpeed = moveSpeed;
     }
 
     private void OnTriggerEnter2D(Collider2D other)
@@ -1013,6 +1187,13 @@ public class PlayerController : MonoBehaviour
             isAttacking = false;
             currentState = CharacterState.Idle;
         }
+    }
+
+    private void RestoreSpeed()
+    {
+        Debuff.SetActive(false);
+        actualMoveSpeed = moveSpeed;
+        isSlowed = false;
     }
 
     private Direction DetermineDirection(Vector3 targetPosition)

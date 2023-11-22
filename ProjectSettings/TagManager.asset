@@ -13,6 +13,9 @@ TagManager:
   - Coin
   - FxTemporaire
   - BossObject
+  - PlayerFoot
+  - Destroyable
+  - Land
   layers:
   - Default
   - TransparentFX
