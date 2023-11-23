@@ -86,7 +86,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8205706795460263315, guid: 326e86d5729c54e479798cacab220bb2, type: 3}
       propertyPath: m_SortingOrder
-      value: -3
+      value: -6
       objectReference: {fileID: 0}
     - target: {fileID: 8205706795460263315, guid: 326e86d5729c54e479798cacab220bb2, type: 3}
       propertyPath: m_Materials.Array.size

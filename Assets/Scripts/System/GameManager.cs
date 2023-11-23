@@ -16,7 +16,20 @@ public class GameManager : MonoBehaviour
         {
             if (prefab != null)
             {
-                Instantiate(prefab, Vector3.zero, Quaternion.identity);
+                // Check if the prefab has the tag "Player"
+                if (prefab.CompareTag("Player"))
+                {
+                    Instantiate(prefab, new Vector3(0f, -3f, 0f), Quaternion.identity);
+                }
+                else if (prefab.CompareTag("BossObject"))
+                {
+                    Instantiate(prefab, new Vector3(0f, 3f, 0f), Quaternion.identity);
+                }
+                else
+                {
+                    // Instantiate other prefabs at the default position (Vector3.zero)
+                    Instantiate(prefab, Vector3.zero, Quaternion.identity);
+                }
             }
         }
     }

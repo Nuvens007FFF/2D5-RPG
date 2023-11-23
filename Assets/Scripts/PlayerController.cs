@@ -19,12 +19,15 @@ public class PlayerController : MonoBehaviour
     public SkillUIManager skillUI;
     public GameObject landObject;
     private Collider2D landCollider;
+    private float initialWaitTime = 2.5f; // Adjust the initial delay as needed
+    private float currentWaitTime = 0f;
 
     public enum CharacterState { Idle, Run, Attack };
     private CharacterState currentState = CharacterState.Idle;
     private CharacterState previousState;
     private bool isAttacking = false;
-    private bool isDied = false;
+    public bool isDied = false;
+    private float playDieVFX = 0;
     private bool isDashing = false;
     private bool allowMoving = true;
     private HealthManager healthManager;
@@ -216,7 +219,23 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
-        if (isDied) { return; }
+        currentWaitTime += Time.deltaTime;
+        if (currentWaitTime < initialWaitTime)
+        {
+            // Do nothing during the initial delay
+            return;
+        }
+
+        if (isDied) 
+        { 
+            if(playDieVFX < 1)
+            {
+                Instantiate(TeleportVFX, transform.position, Quaternion.identity);
+                transform.localScale = new Vector3(0.0001f, 0.0001f, 00001f);
+                playDieVFX++;
+            }
+            return; 
+        }
 
         if(isSlowed)
         {

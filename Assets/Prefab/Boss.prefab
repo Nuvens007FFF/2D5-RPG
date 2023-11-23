@@ -217,6 +217,8 @@ MonoBehaviour:
   skillCooldown: 10
   globalSkillCooldown: 10
   maxHP: 15000
+  healthBarImage: {fileID: 0}
+  energyBarImage: {fileID: 0}
   skeletonAnimation: {fileID: 2285748670135807324}
   playerTransform: {fileID: 0}
   land: {fileID: 3074822676470576492, guid: 0620cb66c0dfb7e44afbe5221fbd8e20, type: 3}
@@ -231,6 +233,7 @@ MonoBehaviour:
   attackRangeCollider: {fileID: 3905107521318882876}
   hitParticleSystem: {fileID: 7735884919146815185, guid: 79fddccde0a318b42acd190dd9631596, type: 3}
   BossRoar: {fileID: 1763579917103264396, guid: a75ebf776968f77459969d6ce6224358, type: 3}
+  RainVFX: {fileID: 9077953520058520336, guid: 4ae4670d7904c5442a36a75147fbf32c, type: 3}
   Skill1: {fileID: 3333226113715588540, guid: 4664e27cb4e2ce341a54a81fdd75eacd, type: 3}
   indicatorSkill2: {fileID: 6358150338398792173, guid: a35637e3d7df2704aa409ada7a42f025, type: 3}
   WaterSplashSkill2: {fileID: 6242018694864698073, guid: 7087b7321074bf742a58c924a4e34ae2, type: 3}
@@ -240,6 +243,7 @@ MonoBehaviour:
   Skill5: {fileID: 6646634631748118920, guid: 76e07e2c26202904197c73bf0f2151e2, type: 3}
   Skill6: {fileID: 3026375341740029760, guid: 9f31d664fbeb45a4cb97912f6e519d7c, type: 3}
   Skill6Buff: {fileID: 7055555302210276302}
+  Skill6Spirit: {fileID: 6834157521169462861, guid: 87c8766f033fe40449c99d11809aa631, type: 3}
   normalAttackDamage: 5
   skill1Dmg: 10
   skill2Dmg: 50
@@ -255,6 +259,10 @@ MonoBehaviour:
   skill5PushForce: 10
   skill5ForceDuration: 0.3
   skill5Interval: 0.5
+  skill6Energy: 100
+  skill6MaxEnergy: 100
+  skill6OrbEnergy: 5
+  energyOrbSpawnInterval: 1
 --- !u!1 &2285748670000712854
 GameObject:
   m_ObjectHideFlags: 0

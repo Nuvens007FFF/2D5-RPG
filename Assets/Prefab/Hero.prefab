@@ -19877,6 +19877,7 @@ MonoBehaviour:
   dashTrail: {fileID: 3903661902703812630}
   skillUI: {fileID: 0}
   landObject: {fileID: 0}
+  isDied: 0
   swordController: {fileID: 3996625605081748243}
   frontPivot: {fileID: 7505537600121476216}
   backPivot: {fileID: 5177810322734991486}
@@ -25022,6 +25023,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5922452555026175348}
   - component: {fileID: 7167962925352024825}
+  - component: {fileID: 8353166053481776959}
   m_Layer: 0
   m_Name: PlayerFoot
   m_TagString: PlayerFoot
@@ -25069,6 +25071,20 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 0.4, y: 0.02}
   m_EdgeRadius: 0
+--- !u!114 &8353166053481776959
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8484331146490319425}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e8a6e1fe63aea2049966e3e8129461e1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  inFrontSortingOrder: 3
+  behindSortingOrder: -3
 --- !u!1001 &3517189262747734410
 PrefabInstance:
   m_ObjectHideFlags: 0

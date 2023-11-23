@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 using Spine.Unity;
 using System;
 using System.Collections;
@@ -17,6 +18,8 @@ public class BossController : MonoBehaviour
     private float initialWaitTime = 3f; // Adjust the initial delay as needed
     private float currentWaitTime = 0f;
     private float lastPercentTage;
+    public Image healthBarImage;
+    public Image energyBarImage;
 
     public float CurrentHP
     {
@@ -29,6 +32,7 @@ public class BossController : MonoBehaviour
     private Direction lastDirection;
     private bool isAttacking = false;
     private bool isSpecialAttack = false;
+    private bool bossIntro = true;
     private float nextAttackTime = 0f;
     private float nextGlobalSkillTime = 0f;
     private float nextSkillTime = 0f;
@@ -45,7 +49,6 @@ public class BossController : MonoBehaviour
     private float nextTurnTime = 0f;
     private bool isPhase2 = false;
     private bool isPhase3 = false;
-    private bool finalSkill6 = false;
 
     public BossAttackController leftClawController;
     public BossAttackController rightClawController;
@@ -59,6 +62,7 @@ public class BossController : MonoBehaviour
     public ParticleSystem hitParticleSystem;
     public static event Action DropCoinEvent;
     public GameObject BossRoar;
+    public GameObject RainVFX;
     public GameObject Skill1;
     public GameObject indicatorSkill2;
     public GameObject WaterSplashSkill2;
@@ -68,6 +72,7 @@ public class BossController : MonoBehaviour
     public GameObject Skill5;
     public GameObject Skill6;
     public GameObject Skill6Buff;
+    public GameObject Skill6Spirit;
 
     public float normalAttackDamage = 5f;
     public float skill1Dmg = 10f;
@@ -86,6 +91,11 @@ public class BossController : MonoBehaviour
     public float skill5PushForce = 10f;
     public float skill5ForceDuration = 0.25f;
     public float skill5Interval = 0.5f;
+    public float skill6Energy = 100f;
+    public float skill6MaxEnergy = 100f;
+    public float skill6OrbEnergy = 2.5f;
+    private float energyOrbSpawnTimer = 0f;
+    public float energyOrbSpawnInterval = 1f;
 
     private int consecutiveSkill3Count = 0;
     private int consecutiveSkill4Count = 0;
@@ -118,12 +128,28 @@ public class BossController : MonoBehaviour
         // Initialize currentHP to maxHP
         currentHP = maxHP;
         lastPercentTage = currentHP / currentHP * 100f;
+
+        // Initialize Status Bar
+        GameObject healthBarObject = GameObject.Find("BossHPBar");
+        healthBarImage = healthBarObject.GetComponent<Image>();
+        GameObject energyBarObject = GameObject.Find("BossMPBar");
+        energyBarImage = energyBarObject.GetComponent<Image>();
     }
 
     private void Update()
     {
         currentWaitTime += Time.deltaTime;
         skill3DelayCountdown += Time.deltaTime;
+        if(playerController.isDied)
+        {
+            return;
+        }
+
+        if(bossIntro)
+        {
+            BossIntro();
+            bossIntro = false;
+        }
 
         // Check if the initial delay has passed
         if (currentWaitTime < initialWaitTime)
@@ -138,27 +164,38 @@ public class BossController : MonoBehaviour
             return;
         }
 
-        if((currentHP <= (maxHP * 0.66f)) && !isPhase2 && !isAttacking)
-        {          
+        UpdateHealthBar(currentHP, maxHP);
+
+        if ((currentHP <= (maxHP * 0.7f)) && !isPhase2 && !isAttacking)
+        {
             isPhase2 = true;
-            globalSkillCooldown = globalSkillCooldown/2f;
+            globalSkillCooldown = globalSkillCooldown / 2f;
             skill2CD = skill2CD + 5f;
             UseSkill5();
             Debug.Log("Phase 2");
         }
 
-        if ((currentHP <= (maxHP * 0.33f)) && !isPhase3 && !isAttacking)
+        if ((currentHP <= (maxHP * 0.4f)) && !isPhase3 && !isAttacking)
         {
             isPhase3 = true;
             UseSkill6();
             Debug.Log("Phase 3");
         }
 
-        if ((currentHP <= (maxHP * 0.1f)) && !finalSkill6 && !isAttacking)
+        skill6Energy = Mathf.Clamp(skill6Energy, 0f, skill6MaxEnergy);
+        UpdateEnergyBar(skill6Energy, skill6MaxEnergy);
+        if (skill6Energy >= skill6MaxEnergy && isPhase3 && !isAttacking && !isSpecialAttack)
         {
-            finalSkill6 = true;
             UseSkill6();
-            Debug.Log("10% Hp");
+        }
+
+        // Check if it's time to spawn an energy orb
+        energyOrbSpawnTimer += Time.deltaTime;
+        if (energyOrbSpawnTimer >= energyOrbSpawnInterval && skill6Energy < skill6MaxEnergy)
+        {
+            // Call the method to spawn an energy orb
+            SpawnEnergyOrb();
+            energyOrbSpawnTimer = 0f; // Reset the timer
         }
 
         //Debug.Log(isAttacking + " " + (IsPlayerInRange() + " " + (Time.time >= nextAttackTime)));
@@ -206,6 +243,37 @@ public class BossController : MonoBehaviour
 
         //Check Dead
         Dead();
+    }
+
+    public void UpdateHealthBar(float currentHealth, float maxHealth)
+    {
+        // Calculate the health percentage
+        float healthPercentage = currentHealth / maxHealth;
+
+        // Update the health bar image fill amount
+        healthBarImage.fillAmount = healthPercentage;
+    }
+
+    public void UpdateEnergyBar(float currentEnergy, float maxEnergy)
+    {
+        // Calculate the health percentage
+        float energyPercentage = currentEnergy / maxEnergy;
+
+        // Update the health bar image fill amount
+        energyBarImage.fillAmount = energyPercentage;
+    }
+
+    private void BossIntro()
+    {
+        StartCoroutine(IntroRoar());
+    }
+
+    private IEnumerator IntroRoar()
+    {
+        yield return new WaitForSeconds(1f);
+        GameObject Skill5VFX = Instantiate(Skill5, attackPoint.transform.position, attackPoint.transform.rotation);
+        yield return new WaitForSeconds(2f);
+        Destroy(Skill5VFX);
     }
 
     private void ChasePlayer()
@@ -423,7 +491,7 @@ public class BossController : MonoBehaviour
         float borderSize = 7f; // Adjust the size of the border
         float ignoreBorderTime = 0.25f; // Time to ignore the border conditions at the beginning
         int numberOfCharges = 1;
-        if(isPhase2)
+        if (isPhase2)
         {
             numberOfCharges = 3;
         }
@@ -496,21 +564,23 @@ public class BossController : MonoBehaviour
 
                     // Check if the boss is outside the borders after the ignoreBorderTime
                     if (elapsedTime >= ignoreBorderTime &&
-                        (attackPoint.transform.position.x > (borderSize + 1f) || attackPoint.transform.position.x < (-borderSize - 1f)  || attackPoint.transform.position.y > (borderSize + 1f) || attackPoint.transform.position.y < (-borderSize -1f )))
+                        (attackPoint.transform.position.x > (borderSize + 1f) || attackPoint.transform.position.x < (-borderSize - 1f) || attackPoint.transform.position.y > (borderSize + 1f) || attackPoint.transform.position.y < (-borderSize - 1f)))
                     {
                         // Teleport the boss to a valid position
                         if (numberOfCharges > 1)
                         {
                             Instantiate(WaterSplashSkill2, attackPoint.transform.position, rotation);
-                            transform.position = new Vector3(30f, 30f, 30f);
+                            transform.localScale = new Vector3(0.0001f, 0.0001f, 0.0001f);
                             yield return new WaitForSeconds(0.5f);
                             if (chargeCount == 2)
                             {
+                                transform.localScale = new Vector3(1f, 1f, 1f);
                                 transform.position = new Vector3(0, 0, 0);
                                 Instantiate(WaterSplashSkill2, attackPoint.transform.position, rotation);
                             }
                             else
                             {
+                                transform.localScale = new Vector3(1f, 1f, 1f);
                                 transform.position = GetValidTeleportPosition(borderSize, playerTransform.position);
                                 Instantiate(WaterSplashSkill2, attackPoint.transform.position, rotation);
                             }
@@ -579,8 +649,9 @@ public class BossController : MonoBehaviour
         if (position != null)
         {
             Instantiate(WaterSplashSkill2, attackPoint.transform.position, attackPoint.transform.rotation);
-            transform.position = new Vector3(30f, 30f, 30f);
-            yield return new WaitForSeconds(1f);           
+            transform.localScale = new Vector3(0.0001f, 0.0001f, 0.0001f);
+            yield return new WaitForSeconds(1f);
+            transform.localScale = new Vector3(1f, 1f, 1f);
             transform.position = position;
             Instantiate(WaterSplashSkill2, attackPoint.transform.position, attackPoint.transform.rotation);
         }
@@ -664,7 +735,7 @@ public class BossController : MonoBehaviour
     private IEnumerator ActivateSkill4()
     {
         float elapsedTime = 0f;
-        if(!isPhase2)
+        if (!isPhase2)
         {
             isAttacking = true;
         }
@@ -727,6 +798,10 @@ public class BossController : MonoBehaviour
 
             elapsedTime += skill5Interval;
         }
+        if (!isPhase3)
+        {
+            Instantiate(RainVFX, new Vector3(0, 0, 0), Quaternion.identity);
+        }
 
         // Stop pushing the player back
         Destroy(Skill5VFX);
@@ -757,10 +832,10 @@ public class BossController : MonoBehaviour
 
         yield return new WaitForSeconds(0.25f);
 
-        CreateGrid(3, 0, 0); 
+        CreateGrid(3, 0, 0);
 
         yield return new WaitForSeconds(0.25f);
-        CreateGrid(4, 0, 0); 
+        CreateGrid(4, 0, 0);
 
         yield return new WaitForSeconds(0.25f);
         CreateGrid(5, 0, 0);
@@ -781,6 +856,7 @@ public class BossController : MonoBehaviour
         Skill6Buff.SetActive(false);
         isAttacking = false;
         isSpecialAttack = false;
+        skill6Energy = 0;
     }
 
     private void CreateGrid(int size, float xOffset, float yOffset, float gridSize = 4.2f)
@@ -804,7 +880,22 @@ public class BossController : MonoBehaviour
         }
     }
 
+    public void GainEnergy()
+    {
+        skill6Energy += skill6OrbEnergy;
+    }
 
+    private void SpawnEnergyOrb()
+    {
+        float boxWidth = 15f;
+        float boxHeight = 15f;
+        // Calculate the spawn position at the edge of the box
+        float spawnX = transform.position.x + Mathf.Sign(UnityEngine.Random.Range(-1f, 1f)) * boxWidth / 2;
+        float spawnY = transform.position.y + Mathf.Sign(UnityEngine.Random.Range(-1f, 1f)) * boxHeight / 2;
+
+        // Spawn the energy orb at the calculated position
+        Instantiate(Skill6Spirit, new Vector3(spawnX, spawnY, 0f), Quaternion.identity);
+    }
 
     // Add the following methods for pushing the player
     private void PushPlayer()

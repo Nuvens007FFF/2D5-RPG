@@ -16,6 +16,7 @@ TagManager:
   - PlayerFoot
   - Destroyable
   - Land
+  - Bush
   layers:
   - Default
   - TransparentFX

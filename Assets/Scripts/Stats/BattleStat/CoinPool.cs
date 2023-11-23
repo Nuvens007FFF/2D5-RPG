@@ -1,6 +1,7 @@
 
 using System.Collections.Generic;
 using UnityEngine;
+using System.Collections;
 
 public class CoinPool : MonoBehaviour
 {   
@@ -8,6 +9,11 @@ public class CoinPool : MonoBehaviour
     public GameObject coin;
     public int countCoinInitial;
     public List<GameObject> listCoin = new List<GameObject>();
+
+    public float minRadius = 1f;
+    public float maxRadius = 3f;
+    public float forceMagnitude = 3f;
+    public float maxFlyTime = 1f; // Adjust this to control the maximum fly time
     void Start()
     {
         BossController.DropCoinEvent += SplitOutCoin;
@@ -46,14 +52,63 @@ public class CoinPool : MonoBehaviour
     }
     public void SplitOutCoin()
     {
-        for (int i = 0; i < countCoinInitial; i++)
+        // Find the boss object with the "Boss" tag
+        GameObject boss = GameObject.FindGameObjectWithTag("Boss");
+
+        if (boss != null)
         {
-            var obj = AppearCoin();
-            if(obj != null)
+            Vector2 bossPosition = boss.transform.position;
+
+            for (int i = 0; i < countCoinInitial; i++)
             {
-                obj.transform.position = new Vector2(Random.Range(-8, 8), Random.Range(-9, 11));
-                obj.SetActive(true);
+                var obj = AppearCoin();
+                if (obj != null)
+                {
+                    // Set the coin's position around the boss
+                    obj.transform.position = GetRandomPositionAroundBoss(bossPosition, 3f, 5f);
+
+                    // Add a force to the coin in the direction away from the boss
+                    Rigidbody2D coinRb = obj.GetComponent<Rigidbody2D>();
+                    if (coinRb != null)
+                    {
+                        obj.SetActive(true);
+                        Vector2 direction = (Vector2)obj.transform.position - bossPosition;
+                        coinRb.AddForce(direction * forceMagnitude, ForceMode2D.Impulse);
+
+                        // Stop the coin after a certain time
+                        StartCoroutine(StopCoin(coinRb));
+
+                        // Clamp the coin's position within the 8x8 area
+                        obj.transform.position = new Vector2(
+                            Mathf.Clamp(obj.transform.position.x, -4f, 4f),
+                            Mathf.Clamp(obj.transform.position.y, -4f, 4f)
+                        );
+                    }
+                }
             }
         }
+    }
+
+    private IEnumerator StopCoin(Rigidbody2D coinRb)
+    {
+        yield return new WaitForSeconds(maxFlyTime);
+        coinRb.velocity = Vector2.zero;
+        coinRb.angularVelocity = 0f;
+    }
+
+
+    private Vector2 GetRandomPositionAroundBoss(Vector2 bossPosition, float minRadius, float maxRadius)
+    {
+        // Calculate a random angle
+        float angle = Random.Range(0f, 2f * Mathf.PI);
+
+        // Calculate a random radius within the specified range
+        float radius = Random.Range(minRadius, maxRadius);
+
+        // Calculate the position around the boss using polar coordinates
+        float x = bossPosition.x + radius * Mathf.Cos(angle);
+        float y = bossPosition.y + radius * Mathf.Sin(angle);
+
+        return new Vector2(x, y);
     }
 }
