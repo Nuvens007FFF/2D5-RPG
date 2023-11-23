@@ -216,7 +216,7 @@ MonoBehaviour:
   attackCooldown: 2
   skillCooldown: 10
   globalSkillCooldown: 10
-  maxHP: 30000
+  maxHP: 15000
   skeletonAnimation: {fileID: 2285748670135807324}
   playerTransform: {fileID: 0}
   land: {fileID: 3074822676470576492, guid: 0620cb66c0dfb7e44afbe5221fbd8e20, type: 3}

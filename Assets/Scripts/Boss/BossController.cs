@@ -496,7 +496,7 @@ public class BossController : MonoBehaviour
 
                     // Check if the boss is outside the borders after the ignoreBorderTime
                     if (elapsedTime >= ignoreBorderTime &&
-                        (attackPoint.transform.position.x > borderSize || attackPoint.transform.position.x < -borderSize || attackPoint.transform.position.y > borderSize || attackPoint.transform.position.y < -borderSize))
+                        (attackPoint.transform.position.x > (borderSize + 1f) || attackPoint.transform.position.x < (-borderSize - 1f)  || attackPoint.transform.position.y > (borderSize + 1f) || attackPoint.transform.position.y < (-borderSize -1f )))
                     {
                         // Teleport the boss to a valid position
                         if (numberOfCharges > 1)

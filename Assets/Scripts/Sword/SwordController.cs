@@ -33,9 +33,18 @@ public class SwordController : MonoBehaviour
     {
         //Temporary disable the sword sprite
         SpriteRenderer spriteRenderer = gameObject.transform.GetComponent<SpriteRenderer>();
+        GameObject flameVFX = GameObject.Find("FlameVFX");
+        if (flameVFX != null)
+        {
+            flameVFX.SetActive(false);
+        }
         spriteRenderer.enabled = false;
 
         yield return new WaitForSeconds(duration);
+        if (flameVFX != null)
+        {
+            flameVFX.SetActive(true);
+        }
         spriteRenderer.enabled = true;
     }
 
