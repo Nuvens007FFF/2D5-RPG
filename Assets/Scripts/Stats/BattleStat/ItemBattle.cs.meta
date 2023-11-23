@@ -1,5 +1,9 @@
 fileFormatVersion: 2
+<<<<<<<< HEAD:Assets/Scripts/Stats/BattleStat/ItemBattle.cs.meta
 guid: 6341e3ffa30c6074cb1dc4e8f3a3f403
+========
+guid: ac452b76a5fcfff43a5bcfbd452b841f
+>>>>>>>> merge2:Assets/Scripts/Boss/BossViewRange.cs.meta
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2

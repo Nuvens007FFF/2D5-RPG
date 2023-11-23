@@ -27,21 +27,21 @@ public class HealthManager : MonoBehaviour
         ItemBattle.UsePotionEvent -= HealFromPotion;
     }
     public void HealFromPotion(float Amount)
-    {   
-        if(Amount <= 0) return;
+    {
+        if(Amount < 0) return;
         Health = maxHealth;
         CalculatePercent();
     }
     public void TakeDamage(float damage)
     {
-        if (Health <= 0) 
-        {  
-            if(CharacterDied != null) { CharacterDied(); }
-            return; 
-        }
         Health -= damage;
-        //Debug.Log("Health = " + Health);
         CalculatePercent();
+        if (Health <= 0)
+        {
+            if (CharacterDied != null) { CharacterDied(); }
+            return;
+        }
+        //Debug.Log("Health = " + Health);
     }
 
     private void CalculatePercent()

@@ -1,33 +1,44 @@
 using UnityEngine;
+using UnityEngine.UI;
 using Spine.Unity;
-using System.Collections;
-using CharacterEnums;
 using System;
+using System.Collections;
+using System.Collections.Generic;
+using CharacterEnums;
 
 public class BossController : MonoBehaviour
 {
     public float moveSpeed = 5f;
     public float attackRange = 2f;
     public float attackCooldown = 5f;
-    public float maxHP = 500f; 
+    public float skillCooldown = 10f;
+    public float globalSkillCooldown = 10f;
+    public float maxHP = 500f;
     private float currentHP;
     private float initialWaitTime = 3f; // Adjust the initial delay as needed
     private float currentWaitTime = 0f;
-    private float lastPercentTage ;
+    private float lastPercentTage;
+    public Image healthBarImage;
+    public Image energyBarImage;
 
     public float CurrentHP
     {
         get { return currentHP; }
         private set { currentHP = value; }
     }
-    public float normalAttackDamage = 5f;
+
     public SkeletonAnimation skeletonAnimation;
     private Vector3 targetPosition;
     private Direction lastDirection;
     private bool isAttacking = false;
+    private bool isSpecialAttack = false;
+    private bool bossIntro = true;
     private float nextAttackTime = 0f;
+    private float nextGlobalSkillTime = 0f;
+    private float nextSkillTime = 0f;
     public Transform playerTransform;
     private GameObject player;
+    public GameObject land;
     private PlayerController playerController;
 
     public enum CharacterState { Idle, Run, Attack };
@@ -36,15 +47,59 @@ public class BossController : MonoBehaviour
     private int bossAttack;
     public float turnCooldown = 20f;
     private float nextTurnTime = 0f;
+    private bool isPhase2 = false;
+    private bool isPhase3 = false;
 
     public BossAttackController leftClawController;
     public BossAttackController rightClawController;
     public GameObject leftClaw;
     public GameObject rightClaw;
     public GameObject attackPoint;
+    public BossViewRange viewRange;
+    public GameObject chargeRange;
+    public GameObject attackRangeCollider;
 
     public ParticleSystem hitParticleSystem;
     public static event Action DropCoinEvent;
+    public GameObject BossRoar;
+    public GameObject RainVFX;
+    public GameObject Skill1;
+    public GameObject indicatorSkill2;
+    public GameObject WaterSplashSkill2;
+    public GameObject chargeColliderSkill2;
+    public GameObject Skill3;
+    public GameObject Skill4;
+    public GameObject Skill5;
+    public GameObject Skill6;
+    public GameObject Skill6Buff;
+    public GameObject Skill6Spirit;
+
+    public float normalAttackDamage = 5f;
+    public float skill1Dmg = 10f;
+    public float skill2Dmg = 50f;
+    public float skill2CD = 10f;
+    private float nextSkill2Time = 0f;
+    public float skill3ATKSPD = 0.5f;
+    public float skill3SPD = 5f;
+    public float skill3Duration = 5f;
+    public float skill3FadeOutTime = 4f;
+    public float skill3Delay = 0.5f;
+    private float skill3DelayCountdown = 0;
+    public float skill4Duration = 3f;
+    public float skill4Interval = 1f;
+    public float skill5Duration = 3f;
+    public float skill5PushForce = 10f;
+    public float skill5ForceDuration = 0.25f;
+    public float skill5Interval = 0.5f;
+    public float skill6Energy = 100f;
+    public float skill6MaxEnergy = 100f;
+    public float skill6OrbEnergy = 2.5f;
+    private float energyOrbSpawnTimer = 0f;
+    public float energyOrbSpawnInterval = 1f;
+
+    private int consecutiveSkill3Count = 0;
+    private int consecutiveSkill4Count = 0;
+    private int consecutiveSkill5Count = 0;
 
     private void Start()
     {
@@ -53,6 +108,7 @@ public class BossController : MonoBehaviour
         // Find the player GameObject with the "Player" tag
         player = GameObject.FindWithTag("Player");
         playerController = player.GetComponent<PlayerController>();
+        Skill3.SetActive(false);
 
         // Check if the player GameObject was found
         if (player != null)
@@ -72,17 +128,74 @@ public class BossController : MonoBehaviour
         // Initialize currentHP to maxHP
         currentHP = maxHP;
         lastPercentTage = currentHP / currentHP * 100f;
+
+        // Initialize Status Bar
+        GameObject healthBarObject = GameObject.Find("BossHPBar");
+        healthBarImage = healthBarObject.GetComponent<Image>();
+        GameObject energyBarObject = GameObject.Find("BossMPBar");
+        energyBarImage = energyBarObject.GetComponent<Image>();
     }
 
     private void Update()
     {
         currentWaitTime += Time.deltaTime;
+        skill3DelayCountdown += Time.deltaTime;
+        if(playerController.isDied)
+        {
+            return;
+        }
+
+        if(bossIntro)
+        {
+            BossIntro();
+            bossIntro = false;
+        }
 
         // Check if the initial delay has passed
         if (currentWaitTime < initialWaitTime)
         {
             // Do nothing during the initial delay
             return;
+        }
+
+        if (skill3DelayCountdown < skill3Delay)
+        {
+            // Do nothing during the delay
+            return;
+        }
+
+        UpdateHealthBar(currentHP, maxHP);
+
+        if ((currentHP <= (maxHP * 0.7f)) && !isPhase2 && !isAttacking)
+        {
+            isPhase2 = true;
+            globalSkillCooldown = globalSkillCooldown / 2f;
+            skill2CD = skill2CD + 5f;
+            UseSkill5();
+            Debug.Log("Phase 2");
+        }
+
+        if ((currentHP <= (maxHP * 0.4f)) && !isPhase3 && !isAttacking)
+        {
+            isPhase3 = true;
+            UseSkill6();
+            Debug.Log("Phase 3");
+        }
+
+        skill6Energy = Mathf.Clamp(skill6Energy, 0f, skill6MaxEnergy);
+        UpdateEnergyBar(skill6Energy, skill6MaxEnergy);
+        if (skill6Energy >= skill6MaxEnergy && isPhase3 && !isAttacking && !isSpecialAttack)
+        {
+            UseSkill6();
+        }
+
+        // Check if it's time to spawn an energy orb
+        energyOrbSpawnTimer += Time.deltaTime;
+        if (energyOrbSpawnTimer >= energyOrbSpawnInterval && skill6Energy < skill6MaxEnergy)
+        {
+            // Call the method to spawn an energy orb
+            SpawnEnergyOrb();
+            energyOrbSpawnTimer = 0f; // Reset the timer
         }
 
         //Debug.Log(isAttacking + " " + (IsPlayerInRange() + " " + (Time.time >= nextAttackTime)));
@@ -97,6 +210,31 @@ public class BossController : MonoBehaviour
             nextAttackTime = Time.time + attackCooldown;
         }
 
+        if (Time.time >= nextGlobalSkillTime && !isSpecialAttack)
+        {
+            // Call the method to handle random skill selection
+            UseRandomGlobalSkill();
+
+            nextGlobalSkillTime = Time.time + globalSkillCooldown;
+        }
+
+        if (!IsPlayerInRange() && !isAttacking && Time.time >= nextSkillTime)
+        {
+            // Call the method to handle random skill selection
+            UseRandomSkill();
+
+            nextSkillTime = Time.time + skillCooldown;
+        }
+
+        if (IsPlayerInChargeRange() && !isAttacking && Time.time >= nextSkill2Time)
+        {
+            // Call the method to handle random skill selection
+            UseSkill2();
+
+
+            nextSkill2Time = Time.time + skill2CD + (UnityEngine.Random.Range(-5f, 5f));
+        }
+
         if (currentState != previousState)
         {
             HandleStateChanged();
@@ -107,31 +245,62 @@ public class BossController : MonoBehaviour
         Dead();
     }
 
+    public void UpdateHealthBar(float currentHealth, float maxHealth)
+    {
+        // Calculate the health percentage
+        float healthPercentage = currentHealth / maxHealth;
+
+        // Update the health bar image fill amount
+        healthBarImage.fillAmount = healthPercentage;
+    }
+
+    public void UpdateEnergyBar(float currentEnergy, float maxEnergy)
+    {
+        // Calculate the health percentage
+        float energyPercentage = currentEnergy / maxEnergy;
+
+        // Update the health bar image fill amount
+        energyBarImage.fillAmount = energyPercentage;
+    }
+
+    private void BossIntro()
+    {
+        StartCoroutine(IntroRoar());
+    }
+
+    private IEnumerator IntroRoar()
+    {
+        yield return new WaitForSeconds(1f);
+        GameObject Skill5VFX = Instantiate(Skill5, attackPoint.transform.position, attackPoint.transform.rotation);
+        yield return new WaitForSeconds(2f);
+        Destroy(Skill5VFX);
+    }
+
     private void ChasePlayer()
     {
         targetPosition = playerTransform.position;
         Direction newDirection = DetermineDirection(targetPosition);
         lastDirection = newDirection;
 
-        if (lastDirection == Direction.Side)
-        {
-            FlipCharacter();
-        }
         if (Time.time >= nextTurnTime)
         {
+            if (lastDirection == Direction.Side)
+            {
+                FlipCharacter();
+            }
             switch (lastDirection)
             {
                 case Direction.Front:
                     attackPoint.transform.rotation = Quaternion.Euler(0, 0, 0);
-                    attackRange = 1.75f;
+                    attackRange = 4.5f;
                     break;
                 case Direction.Back:
                     attackPoint.transform.rotation = Quaternion.Euler(0, 0, 180);
-                    attackRange = 0.75f;
+                    attackRange = 3f;
                     break;
                 case Direction.Side:
                     attackPoint.transform.rotation = Quaternion.Euler(0, 0, transform.localScale.x > 0 ? 90 : -90);
-                    attackRange = 1.25f;
+                    attackRange = 3.5f;
                     break;
             }
             nextTurnTime = Time.time + turnCooldown;
@@ -149,7 +318,7 @@ public class BossController : MonoBehaviour
 
     private void FlipCharacter()
     {
-        if (targetPosition.x > transform.position.x)
+        if (targetPosition.x > attackPoint.transform.position.x)
         {
             transform.localScale = new Vector3(1, 1, 1);
         }
@@ -162,13 +331,16 @@ public class BossController : MonoBehaviour
     private bool MoveCharacter()
     {
         // Calculate the distance to the target position
-        float distanceToTarget = Vector3.Distance(targetPosition, transform.position);
+        float distanceToTarget = Vector3.Distance(targetPosition, attackPoint.transform.position);
 
-        // If the distance is greater than the attack range and greater than a small threshold
-        if (distanceToTarget > attackRange && distanceToTarget > 0.001f)
+        if (viewRange.inViewRange)
         {
-            transform.position = Vector3.MoveTowards(transform.position, targetPosition, moveSpeed * Time.deltaTime);
-            return true;
+            // If the distance is greater than the attack range and greater than a small threshold
+            if (!IsPlayerInRange() && distanceToTarget > 0.001f)
+            {
+                transform.position = Vector3.MoveTowards(transform.position, targetPosition, moveSpeed * Time.deltaTime);
+                return true;
+            }
         }
         return false;
     }
@@ -182,48 +354,585 @@ public class BossController : MonoBehaviour
         switch (bossAttack)
         {
             case 1:
-                // Enable the trigger collider on the weapon
-                leftClawController.EnableTriggerCollider();
-                StartCoroutine(leftClawController.SwingClaw(lastDirection));
+                StartCoroutine(leftClawController.SwingClaw(lastDirection, true));
                 break;
             case 2:
-                rightClawController.EnableTriggerCollider();
-                StartCoroutine(rightClawController.SwingClaw(lastDirection));
+                StartCoroutine(rightClawController.SwingClaw(lastDirection, false));
                 break;
             default:
                 break;
         }
 
-        Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, attackRange + 0.25f);
+        Collider2D attackCollider = attackRangeCollider.GetComponent<Collider2D>();
 
-        foreach (Collider2D collider in colliders)
+        // Check if the collider exists
+        if (attackCollider != null)
         {
-            // Check if the collider has the "Player" tag
-            if (collider.CompareTag("Player"))
+            Collider2D[] colliders = Physics2D.OverlapCircleAll(attackCollider.bounds.center, attackCollider.bounds.extents.x);
+
+            foreach (Collider2D collider in colliders)
             {
-                Rigidbody2D rb = collider.GetComponent<Rigidbody2D>();
-                if (rb != null)
+                // Check if the collider has the "Player" tag
+                if (collider.CompareTag("Player"))
                 {
-                    // Calculate the direction from the explosion to the player
-                    Vector2 pushDirection = rb.position - (Vector2)transform.position;
-                    pushDirection.Normalize();
-                    // Apply the explosion force
-                    StartCoroutine(ApplyExplosionForce(rb, pushDirection));
+                    Rigidbody2D rb = collider.GetComponent<Rigidbody2D>();
+                    if (rb != null)
+                    {
+                        // Calculate the direction from the explosion to the player
+                        Vector2 pushDirection = rb.position - (Vector2)attackPoint.transform.position;
+                        pushDirection.Normalize();
+                        // Apply the explosion force
+                        StartCoroutine(ApplyExplosionForce(rb, pushDirection, 10f));
+                    }
+                    playerController.TakeDamage(normalAttackDamage);
                 }
-                playerController.TakeDamage(normalAttackDamage);
             }
         }
 
         // Start the attack timeout coroutine
         StartCoroutine(AttackTimeout());
     }
+
+    private void UseRandomGlobalSkill()
+    {
+        // Set the probabilities for each skill
+        float probabilitySkill4 = 0.3f; // 30% chance
+        float probabilitySkill1 = 0.7f; // 70% chance
+
+        // Generate a random value between 0 and 1
+        float randomValue = UnityEngine.Random.value;
+
+        // Execute the chosen special skill based on probabilities
+        if (randomValue < probabilitySkill4)
+        {
+            UseSkill1();
+        }
+        else
+        {
+            UseSkill1();
+        }
+    }
+
+    private void UseRandomSkill()
+    {
+        float randomValue = UnityEngine.Random.value;
+
+        // Adjust the probabilities as needed
+        if (randomValue < 0.2f && consecutiveSkill5Count < 1 && isPhase3) // 20% chance
+        {
+            UseSkill5();
+            consecutiveSkill3Count = 0;
+            consecutiveSkill4Count = 0;
+            consecutiveSkill5Count++;
+        }
+        else if (randomValue < 0.4f && consecutiveSkill3Count < 2) // 40% chance
+        {
+            UseSkill3();
+            consecutiveSkill3Count++;
+            consecutiveSkill4Count = 0;
+            consecutiveSkill5Count = 0;
+        }
+        else if (consecutiveSkill4Count < 2)// 40% chance
+        {
+            UseSkill4();
+            consecutiveSkill3Count = 0;
+            consecutiveSkill4Count++;
+            consecutiveSkill5Count = 0;
+        }
+    }
+
+    private void UseSkill1()
+    {
+        // Editable parameters
+        int numberOfBombs = 20; // Adjust the number of bombs
+        float gridSize = 2.5f; // Editable grid size
+
+        List<Vector2> bombPositions = new List<Vector2>();
+        int maxAttempts = 100; // Limit the number of attempts to avoid freezing
+
+        for (int i = 0; i < numberOfBombs; i++)
+        {
+            int attempts = 0;
+            Vector2 bombPosition = Vector2.zero;
+
+            // Try to find a valid position that doesn't overlap with existing bombs
+            while (attempts < maxAttempts)
+            {
+                // Calculate grid coordinates
+                int gridX = Mathf.FloorToInt(UnityEngine.Random.Range(-7.5f, 7.5f) / gridSize);
+                int gridY = Mathf.FloorToInt(UnityEngine.Random.Range(-7.75f, 7.75f) / gridSize);
+
+                // Calculate the position of the bomb at the center of the grid cell with random offset
+                bombPosition = new Vector2(
+                    gridX * gridSize + gridSize / 2f,
+                    gridY * gridSize + gridSize / 2f
+                );
+
+                // Check if the bomb position is already occupied
+                if (!bombPositions.Contains(bombPosition))
+                {
+                    bombPositions.Add(bombPosition);
+                    break;
+                }
+
+                attempts++;
+            }
+
+            // Instantiate the bomb at the valid position
+            Instantiate(Skill1, bombPosition, Quaternion.identity);
+        }
+    }
+
+    private void UseSkill2()
+    {
+        isAttacking = true;
+        // Editable parameters
+        float chargeSpeed = 15f; // Adjust the charge speed
+        float borderSize = 7f; // Adjust the size of the border
+        float ignoreBorderTime = 0.25f; // Time to ignore the border conditions at the beginning
+        int numberOfCharges = 1;
+        if (isPhase2)
+        {
+            numberOfCharges = 3;
+        }
+
+        // Move the boss toward the target position
+        StartCoroutine(MultiCharge(numberOfCharges, chargeSpeed, borderSize, ignoreBorderTime));
+    }
+
+    private IEnumerator MultiCharge(int numberOfCharges, float chargeSpeed, float borderSize, float ignoreBorderTime)
+    {
+        bool skill2Finish = false;
+        GameObject indicator = null;
+        Collider2D chargeCollider = chargeColliderSkill2.GetComponent<Collider2D>();
+        Instantiate(WaterSplashSkill2, attackPoint.transform.position, attackPoint.transform.rotation);
+        Instantiate(BossRoar, attackPoint.transform.position, attackPoint.transform.rotation);
+        yield return new WaitForSeconds(0.5f);
+
+        for (int chargeCount = 0; chargeCount < numberOfCharges; chargeCount++)
+        {
+            if (!skill2Finish)
+            {
+                // Calculate the direction from the boss to the player
+                Vector3 chargeDirection = (playerTransform.position - attackPoint.transform.position).normalized;
+
+                // Check if the boss and player are on the same axis
+                if (Mathf.Abs(chargeDirection.x) > Mathf.Abs(chargeDirection.y))
+                {
+                    // Align with the x-axis
+                    chargeDirection.y = 0f;
+                }
+                else
+                {
+                    // Align with the y-axis
+                    chargeDirection.x = 0f;
+                }
+
+                // Calculate the target position based on the border size with an additional 1 unit margin
+                Vector3 targetPosition = attackPoint.transform.position + chargeDirection * 100f; // 100f is a magic number
+
+                Quaternion rotation = Quaternion.LookRotation(Vector3.forward, chargeDirection);
+
+                //Rotate Boss
+                float zRotation = 0f;
+                if (-rotation.eulerAngles.z == 180f || -rotation.eulerAngles.z == -180f)
+                {
+                    zRotation = 0f;
+                }
+                else if (-rotation.eulerAngles.z == 0f)
+                {
+                    zRotation = 180f;
+                }
+                else
+                {
+                    zRotation = -rotation.eulerAngles.z;
+                }
+
+                attackPoint.transform.rotation = Quaternion.Euler(0, 0, zRotation);
+
+                // Instantiate the indicator sprite
+                indicator = Instantiate(indicatorSkill2, attackPoint.transform.position, rotation);
+
+                yield return new WaitForSeconds(0.5f); // Wait for sec before charge
+
+                float elapsedTime = 0f;
+
+                while (Vector3.Distance(attackPoint.transform.position, targetPosition) > 0.1f || elapsedTime < ignoreBorderTime)
+                {
+                    // Move towards the target position
+                    transform.position = Vector3.MoveTowards(transform.position, targetPosition, chargeSpeed * Time.deltaTime);
+
+                    // Check if the boss is outside the borders after the ignoreBorderTime
+                    if (elapsedTime >= ignoreBorderTime &&
+                        (attackPoint.transform.position.x > (borderSize + 1f) || attackPoint.transform.position.x < (-borderSize - 1f) || attackPoint.transform.position.y > (borderSize + 1f) || attackPoint.transform.position.y < (-borderSize - 1f)))
+                    {
+                        // Teleport the boss to a valid position
+                        if (numberOfCharges > 1)
+                        {
+                            Instantiate(WaterSplashSkill2, attackPoint.transform.position, rotation);
+                            transform.localScale = new Vector3(0.0001f, 0.0001f, 0.0001f);
+                            yield return new WaitForSeconds(0.5f);
+                            if (chargeCount == 2)
+                            {
+                                transform.localScale = new Vector3(1f, 1f, 1f);
+                                transform.position = new Vector3(0, 0, 0);
+                                Instantiate(WaterSplashSkill2, attackPoint.transform.position, rotation);
+                            }
+                            else
+                            {
+                                transform.localScale = new Vector3(1f, 1f, 1f);
+                                transform.position = GetValidTeleportPosition(borderSize, playerTransform.position);
+                                Instantiate(WaterSplashSkill2, attackPoint.transform.position, rotation);
+                            }
+                        }
+                        break;
+                    }
+
+                    Collider2D[] colliders = Physics2D.OverlapCircleAll(chargeCollider.bounds.center, chargeCollider.bounds.extents.x);
+
+                    foreach (Collider2D collider in colliders)
+                    {
+                        // Check if the collider has the "Player" tag
+                        if (collider.CompareTag("PlayerFoot"))
+                        {
+                            StartCoroutine(leftClawController.SwingClaw(lastDirection, true));
+                            StartCoroutine(rightClawController.SwingClaw(lastDirection, false));
+
+                            Rigidbody2D rb = collider.transform.parent.GetComponent<Rigidbody2D>();
+                            if (rb != null)
+                            {
+                                // Calculate the direction from the explosion to the player
+                                Vector2 pushDirection = rb.position - (Vector2)attackPoint.transform.position;
+                                pushDirection.Normalize();
+                                // Apply the explosion force
+                                StartCoroutine(ApplyExplosionForce(rb, pushDirection, 15f));
+                            }
+                            if (!skill2Finish)
+                            {
+                                playerController.TakeDamage(skill2Dmg);
+                                Debug.Log("Player take: " + skill2Dmg);
+                                skill2Finish = true;
+                            }
+                        }
+                    }
+
+                    if (skill2Finish)
+                    {
+                        break;
+                        yield return new WaitForSeconds(1f);
+                    }
+
+                    elapsedTime += Time.deltaTime;
+                    yield return null;
+                }
+            }
+            // Add a delay between charges if needed
+            Destroy(indicator);
+        }
+
+        // Boss has completed charges, perform any additional logic
+        isAttacking = false;
+        skill3DelayCountdown = 0f;
+    }
+
+    // Helper function to get a valid teleport position within the borders
+
+    private void Teleport(Vector3 position)
+    {
+        isAttacking = true;
+        isSpecialAttack = true;
+        StartCoroutine(ActualTeleport(position));
+    }
+
+    private IEnumerator ActualTeleport(Vector3 position)
+    {
+        if (position != null)
+        {
+            Instantiate(WaterSplashSkill2, attackPoint.transform.position, attackPoint.transform.rotation);
+            transform.localScale = new Vector3(0.0001f, 0.0001f, 0.0001f);
+            yield return new WaitForSeconds(1f);
+            transform.localScale = new Vector3(1f, 1f, 1f);
+            transform.position = position;
+            Instantiate(WaterSplashSkill2, attackPoint.transform.position, attackPoint.transform.rotation);
+        }
+
+        yield return null;
+    }
+    private Vector3 GetValidTeleportPosition(float borderSize, Vector3 playerPosition)
+    {
+        float randomX = UnityEngine.Random.Range(0, 2) == 0 ? -playerPosition.x : playerPosition.x;
+        float randomY = UnityEngine.Random.Range(0, 2) == 0 ? -playerPosition.y : playerPosition.y;
+
+        if (UnityEngine.Random.value < 0.5f)
+        {
+            randomX = UnityEngine.Random.Range(0, 2) == 0 ? (-borderSize) : (borderSize);
+        }
+        else
+        {
+            randomY = UnityEngine.Random.Range(0, 2) == 0 ? (-borderSize) : (borderSize);
+        }
+
+        if (randomX >= borderSize)
+        {
+            randomX = (borderSize - 1);
+        }
+
+        if (randomX <= -borderSize)
+        {
+            randomX = (-borderSize + 1);
+        }
+
+        if (randomY >= borderSize)
+        {
+            randomY = (borderSize - 1);
+        }
+
+        if (randomY <= -borderSize)
+        {
+            randomY = (-borderSize + 1);
+        }
+
+        Debug.Log("Tele Position: " + randomX + " " + randomY);
+
+        Vector3 telePosition = new Vector3(randomX, randomY, 0f);
+        return telePosition;
+    }
+
+    private void UseSkill3()
+    {
+        StartCoroutine(ActivateSkill3(skill3ATKSPD, skill3SPD, skill3Duration, skill3FadeOutTime));
+    }
+
+    private IEnumerator ActivateSkill3(float newAttackCooldown, float newMoveSpeed, float duration, float fadeOutTime)
+    {
+        // Save the current values
+        float originalAttackCooldown = attackCooldown;
+        float originalMoveSpeed = moveSpeed;
+
+        // Apply the new values
+        attackCooldown = newAttackCooldown;
+        moveSpeed = newMoveSpeed;
+
+        // Activate Skill3
+        Skill3.SetActive(true);
+
+        // Wait for the main duration
+        yield return new WaitForSeconds(duration);
+
+        // Revert to the original values
+        attackCooldown = originalAttackCooldown;
+        moveSpeed = originalMoveSpeed;
+
+        // Deactivate Skill3
+        Skill3.SetActive(false);
+    }
+
+    private void UseSkill4()
+    {
+        StartCoroutine(ActivateSkill4());
+    }
+
+    private IEnumerator ActivateSkill4()
+    {
+        float elapsedTime = 0f;
+        if (!isPhase2)
+        {
+            isAttacking = true;
+        }
+
+        while (elapsedTime < skill4Duration)
+        {
+            // Instantiate Skill4Prefab at player's position
+            GameObject skillInstance = Instantiate(Skill4, GetPlayerPosition(), Quaternion.identity);
+            if (!isPhase2)
+            {
+                ChasePlayer();
+            }
+
+            // Wait for the interval before spawning the next Skill4Prefab
+            yield return new WaitForSeconds(skill4Interval);
+
+            // Update the elapsed time
+            elapsedTime += skill4Interval;
+        }
+        if (!isPhase2)
+        {
+            isAttacking = false;
+        }
+    }
+
+    private Vector3 GetPlayerPosition()
+    {
+        if (player != null)
+        {
+            return player.transform.position;
+        }
+
+        // If player is not found, return a default position
+        return Vector3.zero;
+    }
+
+    private void UseSkill5()
+    {
+        StartCoroutine(ActivateSkill5());
+    }
+
+    private IEnumerator ActivateSkill5()
+    {
+        Teleport(new Vector3(0, 0, 0));
+        isSpecialAttack = false;
+        yield return new WaitForSeconds(2f);
+        ChasePlayer();
+        // Instantiate the Skill5 visual effect
+        GameObject Skill5VFX = Instantiate(Skill5, attackPoint.transform.position, attackPoint.transform.rotation);
+
+        // Push the player back repeatedly for the specified duration
+        float elapsedTime = 0f;
+
+        while (elapsedTime < skill5Duration)
+        {
+            PushPlayer();
+
+            // Wait for a short interval before the next push
+            yield return new WaitForSeconds(skill5Interval);
+
+            elapsedTime += skill5Interval;
+        }
+        if (!isPhase3)
+        {
+            Instantiate(RainVFX, new Vector3(0, 0, 0), Quaternion.identity);
+        }
+
+        // Stop pushing the player back
+        Destroy(Skill5VFX);
+        isAttacking = false;
+    }
+
+    private void UseSkill6()
+    {
+        StartCoroutine(ActivateSkill6());
+    }
+
+    private IEnumerator ActivateSkill6()
+    {
+        Teleport(new Vector3(0, 0, 0));
+        //Rotate boss
+        attackPoint.transform.rotation = Quaternion.Euler(0, 0, 0);
+        attackRange = 4.5f;
+
+        yield return new WaitForSeconds(2f);
+        Skill6Buff.SetActive(true);
+        yield return new WaitForSeconds(3f);
+
+        CreateGrid(1, 0, 0);
+
+        yield return new WaitForSeconds(0.25f);
+
+        CreateGrid(2, 0, 0);
+
+        yield return new WaitForSeconds(0.25f);
+
+        CreateGrid(3, 0, 0);
+
+        yield return new WaitForSeconds(0.25f);
+        CreateGrid(4, 0, 0);
+
+        yield return new WaitForSeconds(0.25f);
+        CreateGrid(5, 0, 0);
+
+        yield return new WaitForSeconds(0.25f);
+        CreateGrid(6, 0, 0);
+
+        yield return new WaitForSeconds(0.25f);
+        CreateGrid(7, 0, 0);
+
+        //yield return new WaitForSeconds(0.25f);
+        //CreateGrid(8, 0, 0);
+
+        //yield return new WaitForSeconds(0.25f);
+        //CreateGrid(9, 0, 0);
+
+        yield return new WaitForSeconds(3f);
+        Skill6Buff.SetActive(false);
+        isAttacking = false;
+        isSpecialAttack = false;
+        skill6Energy = 0;
+    }
+
+    private void CreateGrid(int size, float xOffset, float yOffset, float gridSize = 4.2f)
+    {
+        for (int i = 0; i < size; i++)
+        {
+            for (int j = 0; j < size; j++)
+            {
+                // Check if the current position is on the edge
+                if (i == 0 || i == size - 1 || j == 0 || j == size - 1)
+                {
+                    float posX = (i - size / 2.0f + 0.5f) * gridSize + xOffset;
+                    float posY = (j - size / 2.0f + 0.5f) * gridSize + yOffset;
+
+                    GameObject instantiatedObject = Instantiate(Skill6, new Vector2(posX, posY), Quaternion.identity);
+
+                    // Set the scale of the instantiated object
+                    instantiatedObject.transform.localScale = new Vector3(1.4f, 1.4f, 1.4f);
+                }
+            }
+        }
+    }
+
+    public void GainEnergy()
+    {
+        skill6Energy += skill6OrbEnergy;
+    }
+
+    private void SpawnEnergyOrb()
+    {
+        float boxWidth = 15f;
+        float boxHeight = 15f;
+        // Calculate the spawn position at the edge of the box
+        float spawnX = transform.position.x + Mathf.Sign(UnityEngine.Random.Range(-1f, 1f)) * boxWidth / 2;
+        float spawnY = transform.position.y + Mathf.Sign(UnityEngine.Random.Range(-1f, 1f)) * boxHeight / 2;
+
+        // Spawn the energy orb at the calculated position
+        Instantiate(Skill6Spirit, new Vector3(spawnX, spawnY, 0f), Quaternion.identity);
+    }
+
+    // Add the following methods for pushing the player
+    private void PushPlayer()
+    {
+        if (player != null)
+        {
+            // Calculate the direction from the boss to the player
+            Vector2 pushDirection = player.transform.position - transform.position;
+            pushDirection.Normalize();
+
+            // Stop the existing velocity to prevent stacking
+            Rigidbody2D playerRb = player.GetComponent<Rigidbody2D>();
+            playerRb.velocity = Vector2.zero;
+
+            // Apply the new push force to the player
+            playerRb.AddForce(pushDirection * skill5PushForce, ForceMode2D.Impulse);
+
+            // Expire the force after a short duration
+            StartCoroutine(ExpireForce(playerRb, skill5ForceDuration));
+        }
+    }
+
+    private IEnumerator ExpireForce(Rigidbody2D rb, float duration)
+    {
+        yield return new WaitForSeconds(duration);
+
+        // Reset the player's velocity after the force expires
+        rb.velocity = Vector2.zero;
+    }
+
     public void TakeDamage(float damage)
     {
         CurrentHP -= damage;
         Debug.Log("Take: " + damage + " Boss HP: " + CurrentHP);
         // DropCoin
         var currentHpPercent = currentHP / maxHP * 100;
-        if( currentHpPercent <= lastPercentTage - 10f)
+        if (currentHpPercent <= lastPercentTage - 10f)
         {
             if (DropCoinEvent != null) DropCoinEvent();
             lastPercentTage -= 10f;
@@ -234,7 +943,7 @@ public class BossController : MonoBehaviour
         {
             // Instantiate the particle system at the boss's position with a random offset
             Vector3 bossPosition = transform.position;
-            Vector3 randomOffset = new Vector3(UnityEngine.Random.Range(-0.5f, 0.5f),UnityEngine.Random.Range(-0.5f, 0.5f), 0f);
+            Vector3 randomOffset = new Vector3(UnityEngine.Random.Range(-0.5f, 0.5f), UnityEngine.Random.Range(-0.5f, 0.5f), 0f);
             Vector3 particleSystemPosition = bossPosition + randomOffset;
 
             // Instantiate the particle system
@@ -254,10 +963,10 @@ public class BossController : MonoBehaviour
         }
     }
 
-    private IEnumerator ApplyExplosionForce(Rigidbody2D rb, Vector2 pushDirection)
+    private IEnumerator ApplyExplosionForce(Rigidbody2D rb, Vector2 pushDirection, float force = 5f)
     {
         // Apply the initial explosion force
-        rb.AddForce(pushDirection * 10f, ForceMode2D.Impulse);
+        rb.AddForce(pushDirection * force, ForceMode2D.Impulse);
 
         // Wait for a specified amount of time
         yield return new WaitForSeconds(0.25f); // Adjust the delay as needed
@@ -286,13 +995,13 @@ public class BossController : MonoBehaviour
 
     private Direction DetermineDirection(Vector3 targetPosition)
     {
-        if (Mathf.Abs(targetPosition.x - transform.position.x) > Mathf.Abs(targetPosition.y - transform.position.y))
+        if (Mathf.Abs(targetPosition.x - attackPoint.transform.position.x) > Mathf.Abs(targetPosition.y - attackPoint.transform.position.y))
         {
             return Direction.Side;
         }
         else
         {
-            return targetPosition.y > transform.position.y ? Direction.Back : Direction.Front;
+            return targetPosition.y > attackPoint.transform.position.y ? Direction.Back : Direction.Front;
         }
     }
 
@@ -338,16 +1047,59 @@ public class BossController : MonoBehaviour
     {
         bool inRange = false;
         bossAttack = 0;
-        if ((Vector3.Distance(leftClaw.transform.position, playerTransform.position) - 0.3f) <= attackRange)
+
+        // Assuming attackRangeCollider is a GameObject with a Collider2D component attached
+        Collider2D attackCollider = attackRangeCollider.GetComponent<Collider2D>();
+
+        // Check if the collider exists
+        if (attackCollider != null)
         {
-            inRange = true;
-            bossAttack = 1;
+            float distanceToPlayer = Vector3.Distance(attackPoint.transform.position, playerTransform.position);
+
+            if (attackCollider.bounds.Contains(playerTransform.position) && distanceToPlayer < attackRange)
+            {
+                inRange = true;
+                //Debug.Log("Distance:" + distanceToPlayer);
+
+                // Determine which claw is in range based on distance
+                float distanceToLeftClaw = Vector3.Distance(leftClaw.transform.position, playerTransform.position);
+                float distanceToRightClaw = Vector3.Distance(rightClaw.transform.position, playerTransform.position);
+
+                if (distanceToLeftClaw < distanceToRightClaw)
+                {
+                    bossAttack = 1;
+                }
+                else
+                {
+                    bossAttack = 2;
+                }
+            }
         }
-        if ((Vector3.Distance(rightClaw.transform.position, playerTransform.position) - 0.3f) <= attackRange)
+
+        return inRange;
+    }
+
+    private bool IsPlayerInChargeRange()
+    {
+        bool inRange = false;
+        if (chargeRange != null)
         {
-            inRange = true;
-            bossAttack = 2;
+            // Get the BoxCollider2D attached to chargeRange
+            BoxCollider2D chargeCollider = chargeRange.GetComponent<BoxCollider2D>();
+
+            // Check if any collider with the "Player" tag is within the charge range collider
+            Collider2D[] colliders = Physics2D.OverlapBoxAll(chargeCollider.bounds.center, chargeCollider.bounds.size, 0f);
+
+            foreach (var collider in colliders)
+            {
+                if (collider.CompareTag("Player"))
+                {
+                    // The collider belongs to an object with the "Player" tag
+                    inRange = true;
+                }
+            }
         }
+
         return inRange;
     }
 }

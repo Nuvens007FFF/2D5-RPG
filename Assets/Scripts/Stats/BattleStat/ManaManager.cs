@@ -29,7 +29,7 @@ public class ManaManager : HealthManager
     }
     public void RestoreMana(float Amount)
     {   
-        if(Amount <= 0) { return; }
+        if(Amount < 0) { return; }
         Mana = maxMana;
         CalculatePercent();
     }
