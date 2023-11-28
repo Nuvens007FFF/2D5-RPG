@@ -11,6 +11,8 @@ public class SkillUIManager : MonoBehaviour
     public Button skillR;
     public GameObject skillQ2;
     public GameObject skillE2;
+    public GameObject PauseUI;
+    private GameObject pausePrefab;
 
     // Set these values based on your game design
     private float skillQCooldown = 1.5f;
@@ -21,6 +23,9 @@ public class SkillUIManager : MonoBehaviour
     public bool isRready = false;
     public bool QECombo = false;
     public bool EQCombo = false;
+
+    public bool isPaused = false;
+    public bool isGameOver = false;
 
     private float skillQTimer;
     private float skillWTimer;
@@ -49,6 +54,10 @@ public class SkillUIManager : MonoBehaviour
         UpdateCooldowns();
         UpdateCooldownText();
         UpdateSkillCombo();
+        if (Input.GetKeyDown(KeyCode.Tab) && !isGameOver)
+        {
+            TogglePause();
+        }
     }
 
     void UpdateCooldowns()
@@ -91,6 +100,30 @@ public class SkillUIManager : MonoBehaviour
         skillWCooldownText.text = skillWTimer > 0f ? skillWTimer.ToString("F1") : "";
         skillECooldownText.text = skillETimer > 0f ? skillETimer.ToString("F1") : "";
         skillREnergyText.text = skillREnergy < skillRMaxEnergy ? skillREnergy.ToString("F1") : "";
+    }
+
+    void TogglePause()
+    {
+        if (!isGameOver)
+        {
+            // Toggle the pause state
+            isPaused = !isPaused;
+
+            // If the game is paused, set the timeScale to 0
+            // If it's resumed, set it back to 1
+            Time.timeScale = isPaused ? 0 : 1;
+            if(isPaused)
+            {
+                Vector3 cameraPosition = Camera.main.transform.position;
+                cameraPosition.z = 0; // Set the Z position to 0
+
+                pausePrefab = Instantiate(PauseUI, cameraPosition, Quaternion.identity);
+            }
+            else
+            {
+                Destroy(pausePrefab);
+            }
+        }
     }
 
     public void SkillQUsed()

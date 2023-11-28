@@ -416,7 +416,7 @@ public class BossController : MonoBehaviour
     private void UseRandomSkill()
     {
         float randomValue = UnityEngine.Random.value;
-
+        Debug.Log("Random Value: " + randomValue);
         // Adjust the probabilities as needed
         if (randomValue < 0.2f && consecutiveSkill5Count < 1 && isPhase3) // 20% chance
         {
@@ -425,7 +425,7 @@ public class BossController : MonoBehaviour
             consecutiveSkill4Count = 0;
             consecutiveSkill5Count++;
         }
-        else if (randomValue < 0.4f && consecutiveSkill3Count < 2) // 40% chance
+        else if (randomValue < 0.6f && consecutiveSkill3Count < 2) // 40% chance
         {
             UseSkill3();
             consecutiveSkill3Count++;
@@ -444,7 +444,7 @@ public class BossController : MonoBehaviour
     private void UseSkill1()
     {
         // Editable parameters
-        int numberOfBombs = 20; // Adjust the number of bombs
+        int numberOfBombs = 25; // Adjust the number of bombs
         float gridSize = 2.5f; // Editable grid size
 
         List<Vector2> bombPositions = new List<Vector2>();
@@ -487,7 +487,7 @@ public class BossController : MonoBehaviour
     {
         isAttacking = true;
         // Editable parameters
-        float chargeSpeed = 15f; // Adjust the charge speed
+        float chargeSpeed = 20f; // Adjust the charge speed
         float borderSize = 7f; // Adjust the size of the border
         float ignoreBorderTime = 0.25f; // Time to ignore the border conditions at the beginning
         int numberOfCharges = 1;
@@ -575,12 +575,14 @@ public class BossController : MonoBehaviour
                             if (chargeCount == 2)
                             {
                                 transform.localScale = new Vector3(1f, 1f, 1f);
+                                playerController.RestoreFireMarkScale();
                                 transform.position = new Vector3(0, 0, 0);
                                 Instantiate(WaterSplashSkill2, attackPoint.transform.position, rotation);
                             }
                             else
                             {
                                 transform.localScale = new Vector3(1f, 1f, 1f);
+                                playerController.RestoreFireMarkScale();
                                 transform.position = GetValidTeleportPosition(borderSize, playerTransform.position);
                                 Instantiate(WaterSplashSkill2, attackPoint.transform.position, rotation);
                             }
@@ -652,6 +654,7 @@ public class BossController : MonoBehaviour
             transform.localScale = new Vector3(0.0001f, 0.0001f, 0.0001f);
             yield return new WaitForSeconds(1f);
             transform.localScale = new Vector3(1f, 1f, 1f);
+            playerController.RestoreFireMarkScale();
             transform.position = position;
             Instantiate(WaterSplashSkill2, attackPoint.transform.position, attackPoint.transform.rotation);
         }
@@ -660,36 +663,40 @@ public class BossController : MonoBehaviour
     }
     private Vector3 GetValidTeleportPosition(float borderSize, Vector3 playerPosition)
     {
-        float randomX = UnityEngine.Random.Range(0, 2) == 0 ? -playerPosition.x : playerPosition.x;
-        float randomY = UnityEngine.Random.Range(0, 2) == 0 ? -playerPosition.y : playerPosition.y;
+        //float randomX = UnityEngine.Random.Range(0, 2) == 0 ? -playerPosition.x : playerPosition.x;
+        //float randomY = UnityEngine.Random.Range(0, 2) == 0 ? -playerPosition.y : playerPosition.y;
+        float randomX = playerPosition.x;
+        float randomY = playerPosition.y;
 
         if (UnityEngine.Random.value < 0.5f)
         {
-            randomX = UnityEngine.Random.Range(0, 2) == 0 ? (-borderSize) : (borderSize);
+            //randomX = UnityEngine.Random.Range(0, 2) == 0 ? (-borderSize) : (borderSize);
+            randomX = borderSize;
         }
         else
         {
-            randomY = UnityEngine.Random.Range(0, 2) == 0 ? (-borderSize) : (borderSize);
+            //randomY = UnityEngine.Random.Range(0, 2) == 0 ? (-borderSize) : (borderSize);
+            randomY = borderSize;
         }
 
         if (randomX >= borderSize)
         {
-            randomX = (borderSize - 1);
+            randomX = (borderSize);
         }
 
         if (randomX <= -borderSize)
         {
-            randomX = (-borderSize + 1);
+            randomX = (-borderSize);
         }
 
         if (randomY >= borderSize)
         {
-            randomY = (borderSize - 1);
+            randomY = (borderSize);
         }
 
         if (randomY <= -borderSize)
         {
-            randomY = (-borderSize + 1);
+            randomY = (-borderSize);
         }
 
         Debug.Log("Tele Position: " + randomX + " " + randomY);
@@ -725,7 +732,62 @@ public class BossController : MonoBehaviour
 
         // Deactivate Skill3
         Skill3.SetActive(false);
+
+        //SpawnSkill4CustomPattern(12, 6f);
     }
+
+    private void SpawnSkill4CustomPattern(int arms, float circleSize)
+    {
+        // Assuming Skill4Prefab is the prefab you want to spawn
+        GameObject skill4Prefab = Skill4;
+
+        // Get the boss position as the center
+        Vector3 bossPosition = transform.position;
+
+        // Create an empty GameObject to act as a parent for the spawned prefabs
+        GameObject gridParent = new GameObject("Skill4Grid");
+        gridParent.transform.position = bossPosition;
+
+        // Spawn Skill4 prefabs in a custom pattern
+        for (int i = 0; i < arms/2; i++)
+        {
+            float angle = i * 360f / (arms/2);
+            Vector3 direction = new Vector3(Mathf.Cos(Mathf.Deg2Rad * angle), Mathf.Sin(Mathf.Deg2Rad * angle), 0f);
+
+            // Scale the direction vector to adjust the circle size
+            direction *= (circleSize/2);
+
+            GameObject skill4Instance = Instantiate(skill4Prefab, bossPosition + direction, Quaternion.identity);
+
+            skill4Instance.transform.parent = gridParent.transform;
+        }
+        for (int i = 0; i < arms; i++)
+        {
+            float angle = i * 360f / arms;
+            Vector3 direction = new Vector3(Mathf.Cos(Mathf.Deg2Rad * angle), Mathf.Sin(Mathf.Deg2Rad * angle), 0f);
+
+            // Scale the direction vector to adjust the circle size
+            direction *= circleSize;
+
+            GameObject skill4Instance = Instantiate(skill4Prefab, bossPosition + direction, Quaternion.identity);
+
+            skill4Instance.transform.parent = gridParent.transform;
+        }
+        for (int i = 0; i < arms*1.5f; i++)
+        {
+            float angle = i * 360f / (arms*1.5f);
+            Vector3 direction = new Vector3(Mathf.Cos(Mathf.Deg2Rad * angle), Mathf.Sin(Mathf.Deg2Rad * angle), 0f);
+
+            // Scale the direction vector to adjust the circle size
+            direction *= (circleSize*1.5f);
+
+            GameObject skill4Instance = Instantiate(skill4Prefab, bossPosition + direction, Quaternion.identity);
+
+            skill4Instance.transform.parent = gridParent.transform;
+        }
+    }
+
+
 
     private void UseSkill4()
     {
@@ -887,11 +949,13 @@ public class BossController : MonoBehaviour
 
     private void SpawnEnergyOrb()
     {
-        float boxWidth = 15f;
-        float boxHeight = 15f;
-        // Calculate the spawn position at the edge of the box
-        float spawnX = transform.position.x + Mathf.Sign(UnityEngine.Random.Range(-1f, 1f)) * boxWidth / 2;
-        float spawnY = transform.position.y + Mathf.Sign(UnityEngine.Random.Range(-1f, 1f)) * boxHeight / 2;
+        // Calculate a random angle in radians
+        float randomAngle = UnityEngine.Random.Range(0f, 360f);
+        float radians = Mathf.Deg2Rad * randomAngle;
+
+        // Calculate the spawn position in a circular pattern
+        float spawnX = transform.position.x + 14f * Mathf.Cos(radians);
+        float spawnY = transform.position.y + 14f * Mathf.Sin(radians);
 
         // Spawn the energy orb at the calculated position
         Instantiate(Skill6Spirit, new Vector3(spawnX, spawnY, 0f), Quaternion.identity);

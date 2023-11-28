@@ -1,5 +1,6 @@
 
 using System;
+using System.Collections;
 using TMPro;
 using UnityEngine;
 
@@ -16,11 +17,18 @@ public class UiEventBattle : MonoBehaviour
     void SwitchPannelSummary()
     {
         Debug.Log("SwitchPannelSummary");
+        StartCoroutine(OpenSummary());
+    }
+
+    private IEnumerator OpenSummary()
+    {
+        yield return new WaitForSeconds(2f);
         if (pannelSummary != null)
         {
             pannelSummary.gameObject.SetActive(true);
         }
     }
+
     void CoinTextUpdate(float coinInBattle)
     {
         coinIndex.text = coinInBattle.ToString();

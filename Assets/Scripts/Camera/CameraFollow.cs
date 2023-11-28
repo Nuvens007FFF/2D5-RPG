@@ -12,9 +12,10 @@ public class CameraFollow : MonoBehaviour
     public float YborderSize = 15f;
 
     private Transform playerTransform;
+    PlayerController playerController;
     private Vector3 velocity = Vector3.zero;
     private float initialWaitTime = 2.5f; // Adjust the initial delay as needed
-    private float currentWaitTime = 0f;
+    private float currentWaitTime = 0.1f;
 
     private void Start()
     {
@@ -25,7 +26,6 @@ public class CameraFollow : MonoBehaviour
     private void Update()
     {
         currentWaitTime += Time.deltaTime;
-
         // Check if the initial delay has passed
         if (currentWaitTime < initialWaitTime)
         {
@@ -44,6 +44,10 @@ public class CameraFollow : MonoBehaviour
     {
         // Find the player GameObject with the "Player" tag
         GameObject playerObject = GameObject.FindWithTag("Player");
+        if (playerObject != null)
+        {
+            playerController = playerObject.GetComponent<PlayerController>();
+        }
 
         // Check if the player GameObject was found
         if (playerObject != null)
@@ -60,7 +64,7 @@ public class CameraFollow : MonoBehaviour
 
     private void LateUpdate()
     {
-        if (playerTransform != null)
+        if (playerTransform != null && !playerController.isDied)
         {
             Vector3 desiredPosition = playerTransform.position + offset;
             // Keep the camera at its original z position

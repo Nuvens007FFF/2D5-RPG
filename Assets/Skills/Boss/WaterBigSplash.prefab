@@ -9800,7 +9800,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   explosionForce: 2
-  explosionDamage: 20
+  explosionDamage: 30
   explosionDelay: 0.75
   slowDuration: 1
 --- !u!114 &-9070534607569197190

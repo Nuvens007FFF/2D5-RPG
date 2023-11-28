@@ -19898,6 +19898,8 @@ MonoBehaviour:
   MoveIndicator: {fileID: 3643301904603070627, guid: a0a85d16913a05e4ebf8d16b7e6e4d87, type: 3}
   Debuff: {fileID: 7334964209118331005}
   FallVFX: {fileID: 3322445133038580143, guid: 8b2aa8c9a4e5fcf42bd18cd2d83b32b7, type: 3}
+  DieVFX: {fileID: 2976254417270670318, guid: 940ab53318966cb4984459dd5b799156, type: 3}
+  Skill3SFX: {fileID: 8300000, guid: a652877b012108e41871f867ada9f176, type: 3}
   manaCostQ: 10
   manaCostW: 50
   manaCostE: 20
@@ -25023,7 +25025,6 @@ GameObject:
   m_Component:
   - component: {fileID: 5922452555026175348}
   - component: {fileID: 7167962925352024825}
-  - component: {fileID: 8353166053481776959}
   m_Layer: 0
   m_Name: PlayerFoot
   m_TagString: PlayerFoot
@@ -25071,20 +25072,6 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 0.4, y: 0.02}
   m_EdgeRadius: 0
---- !u!114 &8353166053481776959
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8484331146490319425}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e8a6e1fe63aea2049966e3e8129461e1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  inFrontSortingOrder: 3
-  behindSortingOrder: -3
 --- !u!1001 &3517189262747734410
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -25092,6 +25079,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 3783285023837275771}
     m_Modifications:
+    - target: {fileID: 14908418922785751, guid: a58aa9a78f2b45b45bb0f3e2e1e3ad3c, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 485970497329932894, guid: a58aa9a78f2b45b45bb0f3e2e1e3ad3c, type: 3}
       propertyPath: m_SortingOrder
       value: 15
@@ -25100,9 +25091,21 @@ PrefabInstance:
       propertyPath: m_SortingOrder
       value: 15
       objectReference: {fileID: 0}
+    - target: {fileID: 1903675944145731648, guid: a58aa9a78f2b45b45bb0f3e2e1e3ad3c, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4782474789175607200, guid: a58aa9a78f2b45b45bb0f3e2e1e3ad3c, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6126188424833946103, guid: a58aa9a78f2b45b45bb0f3e2e1e3ad3c, type: 3}
       propertyPath: m_Name
       value: Debuff
+      objectReference: {fileID: 0}
+    - target: {fileID: 6126188424833946103, guid: a58aa9a78f2b45b45bb0f3e2e1e3ad3c, type: 3}
+      propertyPath: m_Layer
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6126188424833946103, guid: a58aa9a78f2b45b45bb0f3e2e1e3ad3c, type: 3}
       propertyPath: m_IsActive
@@ -25275,9 +25278,37 @@ PrefabInstance:
       propertyPath: m_LocalScale.z
       value: 4
       objectReference: {fileID: 0}
+    - target: {fileID: 5925679125416736427, guid: 7e03da6edfc950541a3852ecbc721729, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5925795438073671329, guid: 7e03da6edfc950541a3852ecbc721729, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5925805046804348607, guid: 7e03da6edfc950541a3852ecbc721729, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5926199920245308179, guid: 7e03da6edfc950541a3852ecbc721729, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5926389163211287057, guid: 7e03da6edfc950541a3852ecbc721729, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5926437328901159299, guid: 7e03da6edfc950541a3852ecbc721729, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 9210301468552804914, guid: 7e03da6edfc950541a3852ecbc721729, type: 3}
       propertyPath: m_Name
       value: FlameVFX
+      objectReference: {fileID: 0}
+    - target: {fileID: 9210301468552804914, guid: 7e03da6edfc950541a3852ecbc721729, type: 3}
+      propertyPath: m_Layer
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 2646036336147081736, guid: 7e03da6edfc950541a3852ecbc721729, type: 3}

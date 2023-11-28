@@ -55,7 +55,7 @@ ParticleSystem:
   startDelay:
     serializedVersion: 2
     minMaxState: 0
-    scalar: 3
+    scalar: 4
     minScalar: 0
     maxCurve:
       serializedVersion: 2
@@ -4922,7 +4922,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   explosionForce: 10
   explosionDamage: 20
-  explosionDelay: 3
+  explosionDelay: 4
   slowDuration: 3
 --- !u!58 &2007764340370011045
 CircleCollider2D:
@@ -4952,7 +4952,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 01bb634cb5328fb42b33f4288ebc3489, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  destroyDelay: 4
+  destroyDelay: 5
 --- !u!1 &3409932213707053618
 GameObject:
   m_ObjectHideFlags: 0
@@ -5008,7 +5008,7 @@ ParticleSystem:
   startDelay:
     serializedVersion: 2
     minMaxState: 0
-    scalar: 3
+    scalar: 4
     minScalar: 0
     maxCurve:
       serializedVersion: 2
@@ -9876,7 +9876,7 @@ ParticleSystem:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4056848807206364242}
   serializedVersion: 7
-  lengthInSec: 3
+  lengthInSec: 4
   simulationSpeed: 1
   stopAction: 0
   cullingMode: 0
@@ -9951,7 +9951,7 @@ ParticleSystem:
     startLifetime:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 3
+      scalar: 4
       minScalar: 5
       maxCurve:
         serializedVersion: 2
@@ -14738,7 +14738,7 @@ ParticleSystem:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5287688237899902930}
   serializedVersion: 7
-  lengthInSec: 3
+  lengthInSec: 4
   simulationSpeed: 1
   stopAction: 0
   cullingMode: 0
@@ -14813,7 +14813,7 @@ ParticleSystem:
     startLifetime:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 3
+      scalar: 4
       minScalar: 5
       maxCurve:
         serializedVersion: 2
@@ -19671,7 +19671,7 @@ ParticleSystem:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6984739800700435181}
   serializedVersion: 7
-  lengthInSec: 3
+  lengthInSec: 4
   simulationSpeed: 1
   stopAction: 0
   cullingMode: 0
@@ -19746,7 +19746,7 @@ ParticleSystem:
     startLifetime:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 3
+      scalar: 4
       minScalar: 5
       maxCurve:
         serializedVersion: 2
@@ -24482,7 +24482,7 @@ ParticleSystem:
   startDelay:
     serializedVersion: 2
     minMaxState: 0
-    scalar: 3
+    scalar: 4
     minScalar: 0
     maxCurve:
       serializedVersion: 2

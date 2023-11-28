@@ -1,4 +1,3 @@
-using System.Collections;
 using UnityEngine;
 
 public class FloatingSword : MonoBehaviour
@@ -8,8 +7,12 @@ public class FloatingSword : MonoBehaviour
 
     private void Update()
     {
-        // Make the sword float up and down
-        float floatingOffset = Mathf.Sin(Time.time * floatSpeed) * floatAmplitude * 0.0015f;
-        transform.position += new Vector3(0, floatingOffset, 0);
+        // Check if the game is not paused
+        if (Time.timeScale > 0)
+        {
+            // Make the sword float up and down
+            float floatingOffset = Mathf.Sin(Time.time * floatSpeed) * floatAmplitude * 0.0015f;
+            transform.position += new Vector3(0, floatingOffset, 0);
+        }
     }
 }

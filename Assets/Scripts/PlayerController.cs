@@ -58,6 +58,11 @@ public class PlayerController : MonoBehaviour
     public GameObject MoveIndicator;
     public GameObject Debuff;
     public GameObject FallVFX;
+    public GameObject DieVFX;
+    private GameObject FireMarkInstance;
+
+    public AudioClip Skill3SFX;
+
     public float manaCostQ = 5f;
     public float manaCostW = 20f;
     public float manaCostE = 10f;
@@ -226,12 +231,19 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
+        if(skillUI.isPaused)
+        {
+            return;
+        }    
+
         if (isDied) 
         { 
             if(playDieVFX < 1)
             {
-                Instantiate(TeleportVFX, transform.position, Quaternion.identity);
+                GameObject DieVFXObject = Instantiate(DieVFX, transform.position, Quaternion.identity);
+                DieVFXObject.transform.localScale = new Vector3(1.2f, 1.2f, 1.2f);
                 transform.localScale = new Vector3(0.0001f, 0.0001f, 00001f);
+                skillUI.isGameOver = true;
                 playDieVFX++;
             }
             return; 
@@ -781,6 +793,16 @@ public class PlayerController : MonoBehaviour
             Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             mousePosition.z = 0f;
             Vector3 dashDirection = (mousePosition - transform.position).normalized;
+            //if (AudioManager.instance != null)
+            //{
+            //    // Play the skill activation sound through AudioManager
+            //    Debug.Log("Play SFX");
+            //    AudioManager.instance.PlaySFX(Skill3SFX);
+            //}
+            //else
+            //{
+            //    Debug.LogWarning("AudioManager not found in the scene. Make sure AudioManager is present.");
+            //}
             StartCoroutine(Skill3Coroutine(dashDirection));
         }
         else
@@ -1080,10 +1102,10 @@ public class PlayerController : MonoBehaviour
             // Instantiate the Skill_4 prefab
             GameObject skillInstance = Instantiate(Skill_4, transform.position, Quaternion.identity);
             GameObject skillInstance2 = Instantiate(FlameCircle, transform.position, Quaternion.identity);
-            GameObject skillInstance3 = null;
+            FireMarkInstance = null;
             if (bossNian.transform.position != null)
             {
-                skillInstance3 = Instantiate(FireMark, bossNian.transform.position, Quaternion.identity);
+                FireMarkInstance = Instantiate(FireMark, bossNian.transform.position, Quaternion.identity);
             }                   
 
             // Set it as a child of the player
@@ -1092,8 +1114,8 @@ public class PlayerController : MonoBehaviour
             skillInstance2.transform.localPosition = new Vector3(0f, 0f, 20f);
             //Set mark as a child of boss
             Transform centerTransform = bossNian.transform.Find("AttackPoint/Center");
-            skillInstance3.transform.parent = centerTransform;
-            skillInstance3.transform.localPosition = new Vector3(0f, 0f, 0f);
+            FireMarkInstance.transform.parent = centerTransform;
+            FireMarkInstance.transform.localPosition = new Vector3(0f, 0f, 0f);
 
             // Set the local position relative to the player (adjust as needed)
             skillInstance.transform.localPosition = new Vector3(0.2f, 0.2f, 0f);
@@ -1147,12 +1169,12 @@ public class PlayerController : MonoBehaviour
                     float startTime = Time.time;
                     float destroyDuration = 0.01f; // Adjust the duration of destruction as needed
 
-                    while (Time.time - startTime < destroyDuration)
-                    {
-                        float progress = (Time.time - startTime) / destroyDuration;
-                        collider.transform.localScale = Vector3.Lerp(Vector3.one, Vector3.zero, progress);
-                        yield return null;
-                    }
+                    //while (Time.time - startTime < destroyDuration)
+                    //{
+                    //    float progress = (Time.time - startTime) / destroyDuration;
+                    //    collider.transform.localScale = Vector3.Lerp(Vector3.one, Vector3.zero, progress);
+                    //    yield return null;
+                    //}
 
                     // Instantiate Flame at the destroyed object's position
                     Instantiate(TeleportVFX, collider.transform.position, Quaternion.identity);
@@ -1162,6 +1184,7 @@ public class PlayerController : MonoBehaviour
                 }
             }
         }
+        yield return null;
     }
 
     private IEnumerator DeactivateSkill2AfterDelay(float delay)
@@ -1272,5 +1295,13 @@ public class PlayerController : MonoBehaviour
 
         //Debug.Log(stateName);
         skeletonAnimation.AnimationState.SetAnimation(0, stateName, loop);
+    }
+
+    public void RestoreFireMarkScale()
+    {
+        if (FireMarkInstance != null)
+        {
+            FireMarkInstance.transform.localScale = new Vector3(0.715f, 0.715f, 0.715f);
+        }
     }
 }
