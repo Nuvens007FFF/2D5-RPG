@@ -20,6 +20,7 @@ public class BossController : MonoBehaviour
     private float lastPercentTage;
     public Image healthBarImage;
     public Image energyBarImage;
+    private int difficult = 0;
 
     public float CurrentHP
     {
@@ -124,6 +125,10 @@ public class BossController : MonoBehaviour
 
         targetPosition = transform.position;
         skeletonAnimation.AnimationState.Complete += HandleAnimationEnd;
+
+        // Initialize difficult
+        difficult = UpdateStatCharacter.instance.Difficult;
+        maxHP = maxHP * difficult;
 
         // Initialize currentHP to maxHP
         currentHP = maxHP;

@@ -112,6 +112,26 @@ public class MouseText : MonoBehaviour
                 ShowPannel(2);
                 LevelText.text = "Số tiền yêu cầu cho lần nâng cấp này";
                 break;
+            case "ATK":
+                ShowPannel(2);
+                LevelText.text = "Tăng sức tấn công của nhân vật";
+                break;
+            case "HP":
+                ShowPannel(2);
+                LevelText.text = "Tăng lượng Sinh Lực tối đa";
+                break;
+            case "MP":
+                ShowPannel(2);
+                LevelText.text = "Tăng lượng Linh Lực tối đa";
+                break;
+            case "Regen_MP":
+                ShowPannel(2);
+                LevelText.text = "Tăng tốc độ hồi Linh Lực và Hỏa Năng";
+                break;
+            case "AGI":
+                ShowPannel(2);
+                LevelText.text = "Tăng tốc độ di chuyển cho nhân vật";
+                break;
             default:
                 SkillText.text = null;
                 break;
