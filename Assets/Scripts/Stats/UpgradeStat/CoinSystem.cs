@@ -42,7 +42,9 @@ public class CoinSystem : MonoBehaviour
     {
         if(CoinIndex >= coinRequired)
         {
-            CoinIndex -= (float)Math.Round(coinRequired);
+            CoinIndex -= coinRequired;
+            //CoinIndex -= (float)Math.Round(coinRequired);
+            Debug.Log("coinUp after round = " + CoinIndex);
             SaveFile();
             return true;
         }
@@ -53,9 +55,16 @@ public class CoinSystem : MonoBehaviour
         HealthManager.CharacterDied -= SummaryCoin;
         Coin.TakeCoinInBattle -= TakeCoinInBattle;
     }
+    public void TakeCoin(float coin)
+    {
+        CoinIndex += coin;
+        // CoinIndex += (float)Math.Round(coin);
+        Debug.Log("coinDown after round = " + CoinIndex);
+        SaveFile();
+    }
     public void TakeCoinInBattle(float coin)
     {
-        coinInBattle += coin;
+        coinInBattle += (float)Math.Round(coin);
         if(CoinUpdatedUI != null) { CoinUpdatedUI(coinInBattle); }
         Debug.Log("coinInbatle =" + coinInBattle);
     }

@@ -60,6 +60,7 @@ public class LevelSkillQManager : LevelSkillManagerBase
     }
     public virtual void OnUpgrade()
     {
+        Debug.Log("Click");
         if (SetStatusForSkill() == "Upgrade")
         {
             var enoughCoin =  CoinSystem.instance.GetCoin(coinRequired);

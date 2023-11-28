@@ -6,8 +6,8 @@ using System;
 public class StatManager : MonoBehaviour
 {
     public static StatManager Instance;
-
     public static event Action<Dictionary<string, float>> OnUpgrade;
+
     private Dictionary<string,float> Stats = new Dictionary<string,float>();
 
     public CharacterStats hpStat;
@@ -15,10 +15,6 @@ public class StatManager : MonoBehaviour
     public CharacterStats MpStat;
     public CharacterStats RegenMpStat;
     public CharacterStats AgiStat;
-
-
-
-    private int currentCoint;
 
     private float baseHp = 10.0f;
     private float baseAtk = 10.0f;
@@ -36,12 +32,15 @@ public class StatManager : MonoBehaviour
     }
     private void Start()
     {   
-        SetBaseStatForCharacter();
-        UpdateRequiredForSlot.SatisfyUpdateRequired += UpdateNewStat;
+        LoadData();
+        UpdateRequiredForSlot.SatisfyUpdgradeRequired += AddNewStat;
 
     }
-
-    void SetBaseStatForCharacter()
+    private void OnDestroy()
+    {
+        UpdateRequiredForSlot.SatisfyUpdgradeRequired -= AddNewStat;
+    }
+    void LoadData()
     {
         if (!File.Exists(GetFilePath()))
         {
@@ -70,9 +69,8 @@ public class StatManager : MonoBehaviour
         AgiStat = new CharacterStats(baseAGI);
         if (OnUpgrade != null) OnUpgrade(Stats);
     }
-
-    public void UpdateNewStat(string nameStat, float statPlus)
-    {   
+    public void AddNewStat(string nameStat, float statPlus)
+    {
         switch(nameStat)
         {
             case "ATK":
@@ -113,7 +111,7 @@ public class StatManager : MonoBehaviour
             default:
                 break;
         }
-        Debug.Log("base = " + baseAtk + " /" + baseHp + " /" + baseMp + " /" + baseRegenMp + " /" + baseAGI);
+        //Debug.Log("base = " + baseAtk + " /" + baseHp + " /" + baseMp + " /" + baseRegenMp + " /" + baseAGI);
         if (OnUpgrade != null) OnUpgrade(Stats); 
     }
     private void SaveData()

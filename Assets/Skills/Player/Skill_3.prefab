@@ -340,6 +340,10 @@ PrefabInstance:
       propertyPath: RotationModule.curve.maxCurve.m_Curve.Array.data[1].outSlope
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7466182839891519800, guid: 6ed2c0319dc7a3949b870ff035352a27, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7837649883195334413, guid: 6ed2c0319dc7a3949b870ff035352a27, type: 3}
       propertyPath: m_Name
       value: Fire slash
@@ -358,11 +362,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7897225708076191416, guid: 6ed2c0319dc7a3949b870ff035352a27, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 7897225708076191416, guid: 6ed2c0319dc7a3949b870ff035352a27, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: 4.29
       objectReference: {fileID: 0}
     - target: {fileID: 7897225708076191416, guid: 6ed2c0319dc7a3949b870ff035352a27, type: 3}
       propertyPath: m_LocalRotation.w
