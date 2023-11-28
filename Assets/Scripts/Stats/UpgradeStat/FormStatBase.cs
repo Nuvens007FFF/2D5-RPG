@@ -10,7 +10,11 @@ public class FormStatBase
     public float baseRegenMp;
     public float baseAGI;
 }
-
+[System.Serializable]
+public class FormDifficult
+{
+    public int difficultLevel;
+}
 [System.Serializable]
 public class FormStore
 {   
@@ -58,6 +62,7 @@ public class BaseStat
     public float statPlus;
     public float currentStatPlus;
     public float percentRise;
+    public int countMaxPrice;
 }
 [System.Serializable]
 public class ATK : BaseStat { }

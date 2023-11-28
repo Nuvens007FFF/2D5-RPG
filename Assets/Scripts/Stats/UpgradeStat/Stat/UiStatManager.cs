@@ -47,7 +47,7 @@ public class UiStatManager : MonoBehaviour
                         Atk.text = statValue.ToString();
                         if (atkIndexLast != statValue) 
                         {
-                            AniamtionIndexUpgrade(Atk);
+                            AnimationIndexUpgrade(Atk);
                             atkIndexLast = statValue;
                         }
                         break;
@@ -55,7 +55,7 @@ public class UiStatManager : MonoBehaviour
                         Hp.text = statValue.ToString();
                         if (hpIndexLast != statValue)
                         {
-                            AniamtionIndexUpgrade(Hp);
+                            AnimationIndexUpgrade(Hp);
                             hpIndexLast = statValue;
                         }
                         break;
@@ -63,7 +63,7 @@ public class UiStatManager : MonoBehaviour
                         Mp.text = statValue.ToString();
                         if (mpIndexLast != statValue)
                         {
-                            AniamtionIndexUpgrade(Mp);
+                            AnimationIndexUpgrade(Mp);
                             mpIndexLast = statValue;
                         }
                         break;
@@ -71,7 +71,7 @@ public class UiStatManager : MonoBehaviour
                         RegenMp.text = statValue.ToString();
                         if (regenMpIndexLast != statValue)
                         {
-                            AniamtionIndexUpgrade(RegenMp);
+                            AnimationIndexUpgrade(RegenMp);
                             regenMpIndexLast = statValue;
                         }
                         break;
@@ -79,7 +79,7 @@ public class UiStatManager : MonoBehaviour
                         Agi.text = statValue.ToString();
                         if (agiIndexLast != statValue)
                         {
-                            AniamtionIndexUpgrade(Agi);
+                            AnimationIndexUpgrade(Agi);
                             agiIndexLast = statValue;
                         }
                         break;
@@ -91,7 +91,7 @@ public class UiStatManager : MonoBehaviour
     {
         Coin.text = newCoinValue.ToString();
     }
-    void AniamtionIndexUpgrade(TMP_Text name)
+    void AnimationIndexUpgrade(TMP_Text name)
     {
         name.transform.DOScale(new Vector3(1.2f, 1.2f, 1.2f), 0.25f)
             .SetEase(Ease.OutQuad) 

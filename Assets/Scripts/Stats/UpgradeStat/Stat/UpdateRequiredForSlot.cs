@@ -1,25 +1,26 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using TMPro;
 using UnityEngine;
 
 public class UpdateRequiredForSlot : MonoBehaviour
 {
-    public static event Action<string,float> SatisfyUpdateRequired;
+    public static event Action<string,float> SatisfyUpdgradeRequired;
+    public static event Action<string,float> SatisfyDowngradeRequired;
     public static event Action<string> SendMessageEvent ;
 
     [SerializeField] private TMP_Text CoinRequired;
-    private  float _coinRequired = 10.0f;
+
+    private float _coinRequired = 10.0f;
     private float maxStat = 30.0f;
     private float maxStatAgi = 10.0f;
     private float statPlus = 1.0f;
     private float currentStatPlus = 0.0f;
     private float percentRise = 0.3f;
     private float percentRiseAgi = 0.9f;
-    private string nameTag;
-
-    
-
+    public string nameTag;
+    [SerializeField] private int countMaxPrice = -1;
     private void Start()
     {
         if (CheckTag())
@@ -31,13 +32,11 @@ public class UpdateRequiredForSlot : MonoBehaviour
             LoadStatData(nameTag);
         }
         CoinRequiredUpdate(_coinRequired);
-        //if(coinRequiredAfterUpdate != null) { coinRequiredAfterUpdate(coinRequired); }
-        //Debug.Log(nameTag + ": coinRequied: " + coinRequired + ", maxStat: " + maxStat + " statPlus: " + statPlus + " currentStatPlus: " +currentStatPlus + " PercentRise: " +percentRise);
     }
     private void CoinRequiredUpdate(float newCoinValue)
     {   
-        var roundCoinValue = (float)Math.Round(newCoinValue);
-        CoinRequired.text = roundCoinValue.ToString();
+        _coinRequired = (float)Math.Round(newCoinValue);
+        CoinRequired.text = _coinRequired.ToString();
     }
     public bool CheckTag()
     {
@@ -59,6 +58,7 @@ public class UpdateRequiredForSlot : MonoBehaviour
                 atkData.statPlus = statPlus;
                 atkData.currentStatPlus = currentStatPlus;
                 atkData.percentRise = percentRise;
+                atkData.countMaxPrice = countMaxPrice;
 
                 string jsonATK = JsonUtility.ToJson(atkData, true);
                 string filePathATK = Path.Combine(Application.persistentDataPath, "FormStat_" + nameForm + ".Json");
@@ -72,6 +72,7 @@ public class UpdateRequiredForSlot : MonoBehaviour
                 hpData.statPlus = statPlus;
                 hpData.currentStatPlus = currentStatPlus;
                 hpData.percentRise = percentRise;
+                hpData.countMaxPrice = countMaxPrice;
 
                 string jsonHP = JsonUtility.ToJson(hpData, true);
                 string filePathHP = Path.Combine(Application.persistentDataPath, "FormStat_" + nameForm + ".Json");
@@ -85,6 +86,7 @@ public class UpdateRequiredForSlot : MonoBehaviour
                 mpData.statPlus = statPlus;
                 mpData.currentStatPlus = currentStatPlus;
                 mpData.percentRise = percentRise;
+                mpData.countMaxPrice = countMaxPrice;
 
                 string jsonMP = JsonUtility.ToJson(mpData, true);
                 string filePathMP = Path.Combine(Application.persistentDataPath, "FormStat_" + nameForm + ".Json");
@@ -98,6 +100,7 @@ public class UpdateRequiredForSlot : MonoBehaviour
                 regenMPData.statPlus = statPlus;
                 regenMPData.currentStatPlus = currentStatPlus;
                 regenMPData.percentRise = percentRise;
+                regenMPData.countMaxPrice = countMaxPrice;
 
                 string jsonRegenMP = JsonUtility.ToJson(regenMPData, true);
                 string filePathRegenMP = Path.Combine(Application.persistentDataPath, "FormStat_" + nameForm + ".Json");
@@ -110,12 +113,86 @@ public class UpdateRequiredForSlot : MonoBehaviour
                 agiData.statPlus = statPlus;
                 agiData.currentStatPlus = currentStatPlus;
                 agiData.percentRise = percentRiseAgi;
+                agiData.countMaxPrice = countMaxPrice;
 
                 string jsonAGI = JsonUtility.ToJson(agiData, true);
                 string filePathAGI = Path.Combine(Application.persistentDataPath, "FormStat_" + nameForm + ".Json");
                 File.WriteAllText(filePathAGI, jsonAGI);
                 break;
         }
+    }
+    public void ClickUpgrade()
+    {
+        Debug.Log("coinUp before round = " + _coinRequired);
+        LoadStatData(nameTag);
+        if (currentStatPlus >= maxStat)
+        {
+            var message = "Bạn đã nâng cấp kỹ năng này tối đa !";
+            if (SendMessageEvent != null) SendMessageEvent(message);
+            return;
+        }
+        if (CoinSystem.instance.GetCoin(_coinRequired))
+        {
+            if (SatisfyUpdgradeRequired != null) SatisfyUpdgradeRequired(nameTag,statPlus);
+            IncreasePrice();
+            SaveData(nameTag);
+        }
+        else
+        {
+            var message = "Bạn không đủ tiền để nâng cấp kỹ năng này !";
+            if(SendMessageEvent != null) SendMessageEvent(message);
+        }
+    }
+    public void ClickDowngrade()
+    {
+        Debug.Log("coinDown before round = " + _coinRequired);
+        LoadStatData(nameTag);
+        if(currentStatPlus <= 0)
+        {
+            var message = "Bạn không thể giảm thêm chỉ số !";
+            if (SendMessageEvent != null) SendMessageEvent(message);
+            return;
+        }
+        else
+        {
+            if (SatisfyUpdgradeRequired != null) SatisfyUpdgradeRequired(nameTag,-statPlus);
+            DecreasePrice();
+            CoinSystem.instance.TakeCoin(_coinRequired);
+            SaveData(nameTag);
+        }
+    }
+    void DecreasePrice()
+    {
+        currentStatPlus -= statPlus;
+        if(countMaxPrice > 0)
+        {
+            countMaxPrice--;
+            _coinRequired = 500f;
+            CoinRequiredUpdate(_coinRequired);
+
+        }
+        else
+        {   
+            _coinRequired /= (1 + percentRise );
+            CoinRequiredUpdate(_coinRequired);
+        }
+        //Debug.Log("currentStatPlus = " + currentStatPlus + " / CoinRequired = " + _coinRequired);
+    }
+    void IncreasePrice()
+    {
+        currentStatPlus += statPlus;
+        _coinRequired *= (1 + percentRise);
+        if (_coinRequired < 500)
+        {
+            CoinRequiredUpdate(_coinRequired);
+        }else if(_coinRequired >= 500)
+        {
+            countMaxPrice++;
+            _coinRequired = 500f;
+            CoinRequiredUpdate(_coinRequired);
+        }
+        //Debug.Log("currentStatPlus = " + currentStatPlus + " / CoinRequired = " + _coinRequired);
+
     }
     public void LoadStatData(string nameForm)
     {
@@ -130,6 +207,7 @@ public class UpdateRequiredForSlot : MonoBehaviour
                 statPlus = atkData.statPlus;
                 currentStatPlus = atkData.currentStatPlus;
                 percentRise = atkData.percentRise;
+                countMaxPrice = atkData.countMaxPrice;
                 break;
 
             case "HP":
@@ -139,6 +217,7 @@ public class UpdateRequiredForSlot : MonoBehaviour
                 maxStat = hpData.maxStat;
                 currentStatPlus = hpData.currentStatPlus;
                 percentRise = hpData.percentRise;
+                countMaxPrice = hpData.countMaxPrice;
                 break;
 
             case "MP":
@@ -148,6 +227,7 @@ public class UpdateRequiredForSlot : MonoBehaviour
                 maxStat = mpData.maxStat;
                 currentStatPlus = mpData.currentStatPlus;
                 percentRise = mpData.percentRise;
+                countMaxPrice = mpData.countMaxPrice;
                 break;
 
             case "RegenMP":
@@ -157,6 +237,7 @@ public class UpdateRequiredForSlot : MonoBehaviour
                 maxStat = regenMPData.maxStat;
                 currentStatPlus = regenMPData.currentStatPlus;
                 percentRise = regenMPData.percentRise;
+                countMaxPrice = regenMPData.countMaxPrice;
                 break;
 
             case "AGI":
@@ -166,45 +247,11 @@ public class UpdateRequiredForSlot : MonoBehaviour
                 maxStat = agiData.maxStat;
                 currentStatPlus = agiData.currentStatPlus;
                 percentRise = agiData.percentRise;
+                countMaxPrice = agiData.countMaxPrice;
                 break;
         }
     }
-    public void ClickUpgrade()
-    {
-        if (currentStatPlus >= maxStat)
-        {
-            var message = "Bạn đã nâng cấp kỹ năng này tối đa !";
-            if (SendMessageEvent != null) SendMessageEvent(message);
-            return;
-        }
-        if (CoinSystem.instance.GetCoin(_coinRequired))
-        {
-            if (SatisfyUpdateRequired != null) SatisfyUpdateRequired(nameTag,statPlus);
-            UpRequiredAfterUpgrade();
-            SaveStatData(nameTag);
-        }
-        else
-        {
-            var message = "Bạn không đủ tiền để nâng cấp kỹ năng này !";
-            if(SendMessageEvent != null) SendMessageEvent(message);
-        }
-    }
-    void UpRequiredAfterUpgrade()
-    {
-        currentStatPlus += statPlus;
-        _coinRequired *= (1 + percentRise);
-        if(_coinRequired < 500)
-        {
-            CoinRequiredUpdate(_coinRequired);
-        }else if(_coinRequired >= 500)
-        {
-            _coinRequired = 500f;
-            CoinRequiredUpdate(_coinRequired);
-        }
-        Debug.Log("currentStatPlus = " + currentStatPlus + " / CoinRequired = " + _coinRequired);
-
-    }
-    void SaveStatData(string nameForm)
+    void SaveData(string nameForm)
     {
         switch (nameForm)
         {
@@ -215,6 +262,7 @@ public class UpdateRequiredForSlot : MonoBehaviour
                 atk.statPlus = statPlus;
                 atk.maxStat = maxStat;
                 atk.percentRise = percentRise;
+                atk.countMaxPrice = countMaxPrice;
 
                 string ATK = JsonUtility.ToJson(atk,true);
                 string filePath = Path.Combine(Application.persistentDataPath, "FormStat_" + nameForm + ".Json");
@@ -228,6 +276,7 @@ public class UpdateRequiredForSlot : MonoBehaviour
                 hp.statPlus = statPlus;
                 hp.maxStat = maxStat;
                 hp.percentRise = percentRise;
+                hp.countMaxPrice = countMaxPrice;
 
                 string HP = JsonUtility.ToJson(hp, true);
                 string filePathHP = Path.Combine(Application.persistentDataPath, "FormStat_" + nameForm + ".Json");
@@ -241,6 +290,7 @@ public class UpdateRequiredForSlot : MonoBehaviour
                 mp.statPlus = statPlus;
                 mp.maxStat = maxStat;
                 mp.percentRise = percentRise;
+                mp.countMaxPrice = countMaxPrice;
 
                 string MP = JsonUtility.ToJson(mp, true);
                 string filePathMP = Path.Combine(Application.persistentDataPath, "FormStat_" + nameForm + ".Json");
@@ -254,6 +304,7 @@ public class UpdateRequiredForSlot : MonoBehaviour
                 regenMP.statPlus = statPlus;
                 regenMP.maxStat = maxStat;
                 regenMP.percentRise = percentRise;
+                regenMP.countMaxPrice = countMaxPrice;
 
                 string RegenMP = JsonUtility.ToJson(regenMP, true);
                 string filePathRegenMP = Path.Combine(Application.persistentDataPath, "FormStat_" + nameForm + ".Json");
@@ -267,6 +318,7 @@ public class UpdateRequiredForSlot : MonoBehaviour
                 agi.statPlus = statPlus;
                 agi.maxStat = maxStatAgi;
                 agi.percentRise = percentRiseAgi;
+                agi.countMaxPrice = countMaxPrice;
 
                 string AGI = JsonUtility.ToJson(agi, true);
                 string filePathAGI = Path.Combine(Application.persistentDataPath, "FormStat_" + nameForm + ".Json");

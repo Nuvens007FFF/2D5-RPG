@@ -8,7 +8,8 @@ public class UpdateStatCharacter : MonoBehaviour
     {
         instance = this;
         LoadDataStat();
-        LoadDataLevelSkill();
+        LoadDataLevelSkill(); 
+        LoadDifficult();
     }
     public float Atk
     {
@@ -55,7 +56,13 @@ public class UpdateStatCharacter : MonoBehaviour
         get { return _unlockSkillR; }
         private set { _unlockSkillR = value;}
     }
+    public int Difficult
+    {
+        get { return _difficult; }
+        private set { _difficult = value; }
+    }
 
+    private int _difficult;
 
     private float _atk;
     private float _hp;
@@ -72,10 +79,20 @@ public class UpdateStatCharacter : MonoBehaviour
     private float coolDownQ= 4.5f;
     private float coolDownE = 4.5f;
     private float durationW = 5f;
-    private void Start()
+    
+    void LoadDifficult()
     {
+        string filePath = Path.Combine(Application.persistentDataPath, "FormDifficult.Json");
+        if(File.Exists(filePath))
+        {
+            string json = File.ReadAllText(filePath);
 
+            FormDifficult formDifficult = JsonUtility.FromJson<FormDifficult>(json);
+
+            Difficult = formDifficult.difficultLevel;
+        }
     }
+
     void LoadDataStat()
     {   
         string filePath = Path.Combine(Application.persistentDataPath, "FormStatBase.Json");
