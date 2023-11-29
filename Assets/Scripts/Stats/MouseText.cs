@@ -50,19 +50,19 @@ public class MouseText : MonoBehaviour
         {
             case "Skill_Q":
                 ShowPannel(1);
-                SkillText.text = "Kỹ năng Q: Bắn ra một đường khí hình cung\n Gây 100% sức mạnh lên boss\n Thời gian hồi chiêu: 4,5 giây.\n Combo EQ: Dịch chuyển ngược với hướng của vị trí chuột chỉ định rồi bắn ra 3 đường kiếm khí.";
+                SkillText.text = "<color=#FF5000>Hỏa Trảm:</color> Bắn đường kiếm khí về hướng chỉ định\n Gây sát thương bằng 150% Công Kích\n <color=#FF5000>Cường Hóa:</color> Nhảy ngược lại với hướng của vị trí chuột chỉ định rồi bắn ra 3 đường kiếm khí.\n <color=#00C1FF>Cần 1 Linh Lực</color>";
                 break;
             case "Skill_W":
                 ShowPannel(1);
-                SkillText.text = "Kỹ năng W: Tạo ra vòng lửa bảo hộ nhân vật\n Giúp giảm 50% sát thương \n Thời gian tác dụng: 5 giây.";
+                SkillText.text = "<color=#FF5000>Hỏa Thuẫn:</color> Tạo ra vòng lửa bảo hộ nhân vật\n Giúp giảm 50% sát thương trong thời gian tác dụng.\n <color=#00C1FF>Cần 5 Linh Lực</color>";
                 break;
             case "Skill_E":
                 ShowPannel(1);
-                SkillText.text = "Kỹ năng E: Lướt theo hướng chỉ định khi chạm boss thì dừng lại và gây sát thương bằng 150% sức mạnh\n Thời gian hồi chiêu: 4,5 giây.\n Combo QE: Lướt theo hướng chỉ định, đi xuyên vật thể, không bị đẩy, không dừng lại nếu đụng boss và sát thương nếu trúng vào boss.";
+                SkillText.text = "<color=#FF5000>Hỏa Bộ:</color> Lướt theo hướng chỉ định nếu vào chạm kẻ địch thì dừng lại và gây sát thương bằng 150% Công Kích\n <color=#FF5000>Cường Hóa:</color> Lướt theo hướng chỉ định, đi xuyên vật thể, không bị đẩy, không dừng lại và gây sát thương nếu trúng kẻ địch.\n <color=#00C1FF>Cần 2 Linh Lực</color>";
                 break;
             case "Skill_R":
                ShowPannel(1);
-                SkillText.text = "Kỹ năng R: Tăng 50% sức mạnh và đánh dấu Boss\n Sau khi hết thời gian hiệu ứng thì phát nổ gây sát thương bằng 50% tổng sát thương boss đã nhận trong thời gian tác dụng.";
+                SkillText.text = "<color=#FF5000>Hỏa Giới:</color> Phá hủy hầu hết đòn tấn công tầm xa trên bản đồ\n Tăng 50% Công Kích và 5 Tốc Độ và tạo dấu ấn trên kẻ dịch\n Sau khi hết thời gian thì phát nổ gây sát thương bằng 50% tổng sát thương đã nhận trong thời gian tác dụng.\n <color=#FF5000>Chỉ có thể sử dụng khi đạt 100 Hỏa Năng\n Nhận Hỏa Năng dựa trên số đòn đánh trúng kẻ địch</color>";
                 break;
             case "QLevel1":
                ShowPannel(2);

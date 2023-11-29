@@ -93,6 +93,9 @@ public class UiStatManager : MonoBehaviour
     }
     void AnimationIndexUpgrade(TMP_Text name)
     {
+        string hexColor = "#FF7300";
+        Color targetColor;
+        ColorUtility.TryParseHtmlString(hexColor, out targetColor);
         name.transform.DOScale(new Vector3(1.2f, 1.2f, 1.2f), 0.25f)
             .SetEase(Ease.OutQuad) 
             .OnComplete(() =>
@@ -104,7 +107,7 @@ public class UiStatManager : MonoBehaviour
            .SetEase(Ease.OutQuad)
            .OnComplete(() =>
            {
-               name.DOColor(Color.white, 0.25f)
+               name.DOColor(targetColor, 0.25f)
                    .SetEase(Ease.InQuad);
            });
     }

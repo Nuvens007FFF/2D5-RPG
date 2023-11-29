@@ -8,7 +8,7 @@ public class CoinSystem : MonoBehaviour
     public static event Action<float> CoinUpdated;
     public static event Action<float> CoinUpdatedUI;
 
-    private float _coinIndex = 8000f  ;
+    private float _coinIndex = 80000f  ;
     private float coinInBattle ;
     public float CoinIndex
     {   
