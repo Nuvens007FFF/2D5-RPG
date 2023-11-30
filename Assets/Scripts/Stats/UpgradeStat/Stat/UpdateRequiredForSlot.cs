@@ -18,16 +18,17 @@ public class UpdateRequiredForSlot : MonoBehaviour
     private float statPlus = 1.0f;
     private float currentStatPlus = 0.0f;
     private float percentRise = 0.3f;
-    private float percentRiseAgi = 0.9f;
-    public string nameTag;
+    private float percentRiseAgi = 0.6f;
     [SerializeField] private int countMaxPrice = -1;
+    public List<float> history = new List<float>();
+    public string nameTag;
     private void Start()
     {
         if (CheckTag())
         {
             if (!File.Exists(GetFilePath(nameTag)))
             {
-                CreateFormForStatSlot(nameTag);
+                CreateFile(nameTag);
             }
             LoadStatData(nameTag);
         }
@@ -47,7 +48,7 @@ public class UpdateRequiredForSlot : MonoBehaviour
         }
         return false;
     }
-    void CreateFormForStatSlot(string nameForm)
+    void CreateFile(string nameForm)
     {
         switch (nameForm)
         {
@@ -59,6 +60,7 @@ public class UpdateRequiredForSlot : MonoBehaviour
                 atkData.currentStatPlus = currentStatPlus;
                 atkData.percentRise = percentRise;
                 atkData.countMaxPrice = countMaxPrice;
+                atkData.history = history;
 
                 string jsonATK = JsonUtility.ToJson(atkData, true);
                 string filePathATK = Path.Combine(Application.persistentDataPath, "FormStat_" + nameForm + ".Json");
@@ -73,6 +75,7 @@ public class UpdateRequiredForSlot : MonoBehaviour
                 hpData.currentStatPlus = currentStatPlus;
                 hpData.percentRise = percentRise;
                 hpData.countMaxPrice = countMaxPrice;
+                hpData.history = history;
 
                 string jsonHP = JsonUtility.ToJson(hpData, true);
                 string filePathHP = Path.Combine(Application.persistentDataPath, "FormStat_" + nameForm + ".Json");
@@ -87,6 +90,7 @@ public class UpdateRequiredForSlot : MonoBehaviour
                 mpData.currentStatPlus = currentStatPlus;
                 mpData.percentRise = percentRise;
                 mpData.countMaxPrice = countMaxPrice;
+                mpData.history = history;
 
                 string jsonMP = JsonUtility.ToJson(mpData, true);
                 string filePathMP = Path.Combine(Application.persistentDataPath, "FormStat_" + nameForm + ".Json");
@@ -101,6 +105,7 @@ public class UpdateRequiredForSlot : MonoBehaviour
                 regenMPData.currentStatPlus = currentStatPlus;
                 regenMPData.percentRise = percentRise;
                 regenMPData.countMaxPrice = countMaxPrice;
+                regenMPData.history = history;
 
                 string jsonRegenMP = JsonUtility.ToJson(regenMPData, true);
                 string filePathRegenMP = Path.Combine(Application.persistentDataPath, "FormStat_" + nameForm + ".Json");
@@ -114,6 +119,7 @@ public class UpdateRequiredForSlot : MonoBehaviour
                 agiData.currentStatPlus = currentStatPlus;
                 agiData.percentRise = percentRiseAgi;
                 agiData.countMaxPrice = countMaxPrice;
+                agiData.history = history;
 
                 string jsonAGI = JsonUtility.ToJson(agiData, true);
                 string filePathAGI = Path.Combine(Application.persistentDataPath, "FormStat_" + nameForm + ".Json");
@@ -123,7 +129,6 @@ public class UpdateRequiredForSlot : MonoBehaviour
     }
     public void ClickUpgrade()
     {
-        Debug.Log("coinUp before round = " + _coinRequired);
         LoadStatData(nameTag);
         if (currentStatPlus >= maxStat)
         {
@@ -134,6 +139,7 @@ public class UpdateRequiredForSlot : MonoBehaviour
         if (CoinSystem.instance.GetCoin(_coinRequired))
         {
             if (SatisfyUpdgradeRequired != null) SatisfyUpdgradeRequired(nameTag,statPlus);
+            History(_coinRequired);
             IncreasePrice();
             SaveData(nameTag);
         }
@@ -145,7 +151,6 @@ public class UpdateRequiredForSlot : MonoBehaviour
     }
     public void ClickDowngrade()
     {
-        Debug.Log("coinDown before round = " + _coinRequired);
         LoadStatData(nameTag);
         if(currentStatPlus <= 0)
         {
@@ -157,7 +162,9 @@ public class UpdateRequiredForSlot : MonoBehaviour
         {
             if (SatisfyUpdgradeRequired != null) SatisfyUpdgradeRequired(nameTag,-statPlus);
             DecreasePrice();
-            CoinSystem.instance.TakeCoin(_coinRequired);
+            var coinRefund =  RefundCoin();
+            DeleteHistory();
+            CoinSystem.instance.TakeCoin(coinRefund);
             SaveData(nameTag);
         }
     }
@@ -170,6 +177,12 @@ public class UpdateRequiredForSlot : MonoBehaviour
             _coinRequired = 500f;
             CoinRequiredUpdate(_coinRequired);
 
+        }else if (countMaxPrice == 0)
+        {
+            countMaxPrice--;
+            if (nameTag == "AGI") _coinRequired = 438f; 
+            else _coinRequired = 400f; 
+            CoinRequiredUpdate(_coinRequired);
         }
         else
         {   
@@ -178,20 +191,42 @@ public class UpdateRequiredForSlot : MonoBehaviour
         }
         //Debug.Log("currentStatPlus = " + currentStatPlus + " / CoinRequired = " + _coinRequired);
     }
+    float RefundCoin()
+    {
+        Debug.Log("CoinRefund = " + history[history.Count - 1]);
+        return history[history.Count - 1];
+    }
+    void History(float coin)
+    {
+        Debug.Log("CoinBuyed = " + coin);
+        history.Add(coin);
+    }
+    void DeleteHistory()
+    {
+        history.RemoveAt(history.Count - 1);
+    }
     void IncreasePrice()
     {
         currentStatPlus += statPlus;
-        _coinRequired *= (1 + percentRise);
         if (_coinRequired < 500)
         {
-            CoinRequiredUpdate(_coinRequired);
+            _coinRequired *= (1 + percentRise);
+            if(_coinRequired > 500)
+            {
+                countMaxPrice++;
+                _coinRequired = 500;
+                CoinRequiredUpdate(_coinRequired);
+            }
+            else
+            {
+                CoinRequiredUpdate(_coinRequired);
+            }
         }else if(_coinRequired >= 500)
         {
             countMaxPrice++;
             _coinRequired = 500f;
             CoinRequiredUpdate(_coinRequired);
         }
-        //Debug.Log("currentStatPlus = " + currentStatPlus + " / CoinRequired = " + _coinRequired);
 
     }
     public void LoadStatData(string nameForm)
@@ -208,6 +243,7 @@ public class UpdateRequiredForSlot : MonoBehaviour
                 currentStatPlus = atkData.currentStatPlus;
                 percentRise = atkData.percentRise;
                 countMaxPrice = atkData.countMaxPrice;
+                history = atkData.history;
                 break;
 
             case "HP":
@@ -218,6 +254,7 @@ public class UpdateRequiredForSlot : MonoBehaviour
                 currentStatPlus = hpData.currentStatPlus;
                 percentRise = hpData.percentRise;
                 countMaxPrice = hpData.countMaxPrice;
+                history = hpData.history;
                 break;
 
             case "MP":
@@ -228,6 +265,7 @@ public class UpdateRequiredForSlot : MonoBehaviour
                 currentStatPlus = mpData.currentStatPlus;
                 percentRise = mpData.percentRise;
                 countMaxPrice = mpData.countMaxPrice;
+                history = mpData.history;
                 break;
 
             case "RegenMP":
@@ -238,6 +276,7 @@ public class UpdateRequiredForSlot : MonoBehaviour
                 currentStatPlus = regenMPData.currentStatPlus;
                 percentRise = regenMPData.percentRise;
                 countMaxPrice = regenMPData.countMaxPrice;
+                history = regenMPData.history;
                 break;
 
             case "AGI":
@@ -248,84 +287,13 @@ public class UpdateRequiredForSlot : MonoBehaviour
                 currentStatPlus = agiData.currentStatPlus;
                 percentRise = agiData.percentRise;
                 countMaxPrice = agiData.countMaxPrice;
+                history = agiData.history;
                 break;
         }
     }
     void SaveData(string nameForm)
     {
-        switch (nameForm)
-        {
-            case "ATK":
-                ATK atk = new ATK();
-                atk.currentStatPlus = currentStatPlus;
-                atk.coinRequired = _coinRequired;
-                atk.statPlus = statPlus;
-                atk.maxStat = maxStat;
-                atk.percentRise = percentRise;
-                atk.countMaxPrice = countMaxPrice;
-
-                string ATK = JsonUtility.ToJson(atk,true);
-                string filePath = Path.Combine(Application.persistentDataPath, "FormStat_" + nameForm + ".Json");
-                File.WriteAllText(filePath, ATK);
-                break;
-
-            case "HP":
-                HP hp = new HP();
-                hp.currentStatPlus = currentStatPlus;
-                hp.coinRequired = _coinRequired;
-                hp.statPlus = statPlus;
-                hp.maxStat = maxStat;
-                hp.percentRise = percentRise;
-                hp.countMaxPrice = countMaxPrice;
-
-                string HP = JsonUtility.ToJson(hp, true);
-                string filePathHP = Path.Combine(Application.persistentDataPath, "FormStat_" + nameForm + ".Json");
-                File.WriteAllText(filePathHP, HP);
-                break;
-
-            case "MP":
-                MP mp = new MP();
-                mp.currentStatPlus = currentStatPlus;
-                mp.coinRequired = _coinRequired;
-                mp.statPlus = statPlus;
-                mp.maxStat = maxStat;
-                mp.percentRise = percentRise;
-                mp.countMaxPrice = countMaxPrice;
-
-                string MP = JsonUtility.ToJson(mp, true);
-                string filePathMP = Path.Combine(Application.persistentDataPath, "FormStat_" + nameForm + ".Json");
-                File.WriteAllText(filePathMP, MP);
-                break;
-
-            case "RegenMP":
-                RegenMP regenMP = new RegenMP();
-                regenMP.currentStatPlus = currentStatPlus;
-                regenMP.coinRequired = _coinRequired;
-                regenMP.statPlus = statPlus;
-                regenMP.maxStat = maxStat;
-                regenMP.percentRise = percentRise;
-                regenMP.countMaxPrice = countMaxPrice;
-
-                string RegenMP = JsonUtility.ToJson(regenMP, true);
-                string filePathRegenMP = Path.Combine(Application.persistentDataPath, "FormStat_" + nameForm + ".Json");
-                File.WriteAllText(filePathRegenMP, RegenMP);
-                break;
-
-            case "AGI":
-                AGI agi = new AGI();
-                agi.currentStatPlus = currentStatPlus;
-                agi.coinRequired = _coinRequired;
-                agi.statPlus = statPlus;
-                agi.maxStat = maxStatAgi;
-                agi.percentRise = percentRiseAgi;
-                agi.countMaxPrice = countMaxPrice;
-
-                string AGI = JsonUtility.ToJson(agi, true);
-                string filePathAGI = Path.Combine(Application.persistentDataPath, "FormStat_" + nameForm + ".Json");
-                File.WriteAllText(filePathAGI, AGI);
-                break;
-        }
-
+        CreateFile(nameForm);
     }
     string GetFilePath(string nameForm)
     {

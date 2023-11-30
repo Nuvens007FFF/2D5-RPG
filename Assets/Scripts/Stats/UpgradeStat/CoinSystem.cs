@@ -44,7 +44,7 @@ public class CoinSystem : MonoBehaviour
         {
             CoinIndex -= coinRequired;
             //CoinIndex -= (float)Math.Round(coinRequired);
-            Debug.Log("coinUp after round = " + CoinIndex);
+            //Debug.Log("coinUp after round = " + CoinIndex);
             SaveFile();
             return true;
         }
@@ -59,7 +59,7 @@ public class CoinSystem : MonoBehaviour
     {
         CoinIndex += coin;
         // CoinIndex += (float)Math.Round(coin);
-        Debug.Log("coinDown after round = " + CoinIndex);
+        //Debug.Log("coinDown after round = " + CoinIndex);
         SaveFile();
     }
     public void TakeCoinInBattle(float coin)
@@ -71,7 +71,6 @@ public class CoinSystem : MonoBehaviour
     public void SummaryCoin()
     {
         if (coinInBattle == 0) return;
-        Debug.Log("SummaryCoin");
         CoinIndex += coinInBattle;
         SaveFile();
         coinInBattle = 0;

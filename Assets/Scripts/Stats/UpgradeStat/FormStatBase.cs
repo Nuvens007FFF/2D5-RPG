@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 [System.Serializable]
 public class FormStatBase 
@@ -57,6 +58,7 @@ public class FormSkillUpgrade_R : SkillUpgradeBase { }
     [System.Serializable]
 public class BaseStat
 {
+    public List<float> history;
     public float coinRequired;
     public float maxStat;
     public float statPlus;
