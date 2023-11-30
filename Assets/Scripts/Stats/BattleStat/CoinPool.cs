@@ -52,7 +52,6 @@ public class CoinPool : MonoBehaviour
     }
     public void SplitOutCoin()
     {
-        // Find the boss object with the "Boss" tag
         GameObject boss = GameObject.FindGameObjectWithTag("Boss");
 
         if (boss != null)
@@ -64,10 +63,8 @@ public class CoinPool : MonoBehaviour
                 var obj = AppearCoin();
                 if (obj != null)
                 {
-                    // Set the coin's position around the boss
                     obj.transform.position = GetRandomPositionAroundBoss(bossPosition, 3f, 5f);
 
-                    // Add a force to the coin in the direction away from the boss
                     Rigidbody2D coinRb = obj.GetComponent<Rigidbody2D>();
                     if (coinRb != null)
                     {
@@ -75,10 +72,8 @@ public class CoinPool : MonoBehaviour
                         Vector2 direction = (Vector2)obj.transform.position - bossPosition;
                         coinRb.AddForce(direction * forceMagnitude, ForceMode2D.Impulse);
 
-                        // Stop the coin after a certain time
                         StartCoroutine(StopCoin(coinRb));
 
-                        // Clamp the coin's position within the 8x8 area
                         obj.transform.position = new Vector2(
                             Mathf.Clamp(obj.transform.position.x, -4f, 4f),
                             Mathf.Clamp(obj.transform.position.y, -4f, 4f)
