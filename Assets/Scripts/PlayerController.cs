@@ -22,7 +22,7 @@ public class PlayerController : MonoBehaviour
     private float initialWaitTime = 2.5f; // Adjust the initial delay as needed
     private float currentWaitTime = 0f;
 
-    public enum CharacterState { Idle, Run, Attack };
+    public enum CharacterState { Idle, Run, Attack};
     private CharacterState currentState = CharacterState.Idle;
     private CharacterState previousState;
     private bool isAttacking = false;
@@ -218,6 +218,10 @@ public class PlayerController : MonoBehaviour
         {
             damage *= 0.5f; // Adjust the multiplier as needed
         }
+        if(bossDied)
+        {
+            damage = 0;
+        }
 
         healthManager.TakeDamage(damage);
     }
@@ -275,13 +279,13 @@ public class PlayerController : MonoBehaviour
         {
             if (applyInWaterDebuff)
             {
-                transform.Find("Model").localScale = new Vector3(0.35f, 0.35f, 0.35f);
+                transform.Find("Model").localScale = new Vector3(0.26f, 0.26f, 0.26f);
                 transform.Find("DefaultPivot/Weapon").localScale = new Vector3(0.26f, 0.26f, 0.26f);
                 applyInWaterDebuff = false;
             }
         }
 
-        if (Input.GetMouseButtonDown(1) && !isAttacking && allowMoving) // Right mouse button clicked
+        if (Input.GetMouseButtonDown(1) && !isAttacking && allowMoving && !bossDied) // Right mouse button clicked
         {
             SetNewTargetPosition(true);
             currentState = CharacterState.Run;
@@ -297,11 +301,11 @@ public class PlayerController : MonoBehaviour
         //    nextAttackTime = Time.time + attackCooldown;
         //}
 
-        skillUI.EQCombo = isComboEQTimeRunning;
-        skillUI.QECombo = isComboQETimeRunning;
+        skillUI.QECombo = allowComboQE;
+        skillUI.EQCombo = allowComboEQ;
 
         // Press Q to use Skill_1
-        if (Input.GetKeyDown(KeyCode.Q) && !isAttacking && Time.time >= nextSkill1Time)
+        if (Input.GetKeyDown(KeyCode.Q) && !isAttacking && Time.time >= nextSkill1Time && !bossDied)
         {
             if (comboEQDuration > 0 && allowComboEQ)
             {
@@ -333,7 +337,7 @@ public class PlayerController : MonoBehaviour
 
 
         // Press W to use Skill_2
-        if (Input.GetKeyDown(KeyCode.W) && Time.time >= nextSkill2Time)
+        if (Input.GetKeyDown(KeyCode.W) && Time.time >= nextSkill2Time && !bossDied)
         {
             UseSkill_2();
 
@@ -343,7 +347,7 @@ public class PlayerController : MonoBehaviour
         }
 
         // Press E to use Skill_3
-        if (Input.GetKeyDown(KeyCode.E) && !isAttacking && Time.time >= nextSkill3Time)
+        if (Input.GetKeyDown(KeyCode.E) && !isAttacking && Time.time >= nextSkill3Time && !bossDied)
         {
             if (comboQEDuration > 0 && allowComboQE)
             {
@@ -380,9 +384,11 @@ public class PlayerController : MonoBehaviour
         // Update previousBossHP for the next frame
         previousBossHP = currentBossHP;
 
-        if(currentBossHP <= 0)
+        if(bossNianController.isDied)
         {
             bossDied = true;
+            Rigidbody2D playerRigidbody = GetComponent<Rigidbody2D>();
+            playerRigidbody.bodyType = RigidbodyType2D.Kinematic;
         }
 
         // Update currentBossHP
@@ -420,7 +426,7 @@ public class PlayerController : MonoBehaviour
         }
 
         // Press R to use Skill_4
-        if (Input.GetKeyDown(KeyCode.R) && allowSkill4 && !isAttacking && UnlockSkill4)
+        if (Input.GetKeyDown(KeyCode.R) && allowSkill4 && !isAttacking && UnlockSkill4 && !bossDied)
         {
             UseSkill_4();
         }
@@ -478,7 +484,7 @@ public class PlayerController : MonoBehaviour
     private void ApplyDamageOverTime()
     {
         // Apply damage over time when outside the land area
-        if (healthManager != null)
+        if (healthManager != null && !bossDied)
         {
             healthManager.TakeDamage(UpdateStatCharacter.instance.Hp * 1f * Time.deltaTime);
         }
@@ -751,7 +757,7 @@ public class PlayerController : MonoBehaviour
             skillInstance.transform.localPosition = new Vector3(0f, 0f, 0f);
 
             // Set the scale of the skillInstance
-            skillInstance.transform.localScale = new Vector3(1.4f, 1.4f, 1.4f);
+            skillInstance.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
 
             // Set isSkill2Active to true
             isSkill2Active = true;
@@ -972,9 +978,12 @@ public class PlayerController : MonoBehaviour
         float dashSpeed = 30f;
         float rigidbodyEnableDelay = 0.1f;
         float spawnInterval = 0.1f;
-
-        Transform bossRigidBody = bossNian.transform.Find("AttackPoint");
-        Rigidbody2D bossRigidbody = bossRigidBody.GetComponent<Rigidbody2D>();
+        Rigidbody2D bossRigidbody = null;
+        if (bossNian != null)
+        {
+            Transform bossRigidBody = bossNian.transform.Find("AttackPoint");
+            bossRigidbody  = bossRigidBody.GetComponent<Rigidbody2D>();
+        }
 
         // Save the initial position of the player
         Vector3 initialPosition = transform.position;
@@ -1121,7 +1130,7 @@ public class PlayerController : MonoBehaviour
             skillInstance.transform.localPosition = new Vector3(0.2f, 0.2f, 0f);
 
             // Set the scale of the skillInstance
-            skillInstance.transform.localScale = new Vector3(2f, 2f, 2f);
+            skillInstance.transform.localScale = new Vector3(2f, 2.2f, 2f);
 
             // Set isSkill4Active to true
             isSkill4Active = true;
@@ -1208,8 +1217,7 @@ public class PlayerController : MonoBehaviour
         bossNianController.TakeDamage(bossDamageDuringSkill4 * 0.5f);
         GameObject skillInstance4 = Instantiate(FireMarkExplosion, bossNian.transform.position, Quaternion.identity);
         Transform centerTransform = bossNian.transform.Find("AttackPoint/Center");
-        skillInstance4.transform.parent = centerTransform;
-        skillInstance4.transform.localPosition = new Vector3(0f, 0f, 0f);
+        skillInstance4.transform.localPosition = centerTransform.position;
 
         canNotBeSlow = false;
         actualMoveSpeed = moveSpeed;

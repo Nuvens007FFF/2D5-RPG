@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3325906647055251116}
   - component: {fileID: -5955209990626117425}
+  - component: {fileID: -7491373297821723768}
   m_Layer: 0
   m_Name: Skill_4
   m_TagString: Untagged
@@ -45,6 +46,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   destroyDelay: 20
+--- !u!114 &-7491373297821723768
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5565446890979823428}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5620dc7e64505fd45b7d182103cfbfde, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  skillActivationSound: {fileID: 8300000, guid: 486cdfa349b550e409566148e9b55969, type: 3}
 --- !u!1001 &3034227151055110110
 PrefabInstance:
   m_ObjectHideFlags: 0

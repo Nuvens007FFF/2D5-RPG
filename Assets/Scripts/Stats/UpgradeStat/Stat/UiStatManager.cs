@@ -20,6 +20,8 @@ public class UiStatManager : MonoBehaviour
     private float mpIndexLast;
     private float regenMpIndexLast;
     private float agiIndexLast;
+
+
     private void Awake()
     {
         CoinSystem.CoinUpdated += CoinUpdatedListener;

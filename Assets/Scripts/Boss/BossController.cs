@@ -18,9 +18,18 @@ public class BossController : MonoBehaviour
     private float initialWaitTime = 3f; // Adjust the initial delay as needed
     private float currentWaitTime = 0f;
     private float lastPercentTage;
+    private bool firstDrop = true;
     public Image healthBarImage;
     public Image energyBarImage;
     private int difficult = 0;
+    public bool isDied = false;
+
+    public AudioClip normalAttackSound;
+    public AudioClip skill2Sound;
+    public AudioClip skill5Sound;
+    public AudioClip bossTheme;
+
+    public static event Action BossDefeated;
 
     public float CurrentHP
     {
@@ -74,6 +83,7 @@ public class BossController : MonoBehaviour
     public GameObject Skill6;
     public GameObject Skill6Buff;
     public GameObject Skill6Spirit;
+    public GameObject BlackMask;
 
     public float normalAttackDamage = 5f;
     public float skill1Dmg = 10f;
@@ -130,6 +140,9 @@ public class BossController : MonoBehaviour
         difficult = UpdateStatCharacter.instance.Difficult;
         maxHP = maxHP * difficult;
 
+        normalAttackDamage = normalAttackDamage * difficult;
+        skill2Dmg = skill2Dmg * difficult;
+
         // Initialize currentHP to maxHP
         currentHP = maxHP;
         lastPercentTage = currentHP / currentHP * 100f;
@@ -153,6 +166,7 @@ public class BossController : MonoBehaviour
         if(bossIntro)
         {
             BossIntro();
+            AudioManager.instance.PlayMusic(bossTheme, 0.5f);
             bossIntro = false;
         }
 
@@ -275,6 +289,7 @@ public class BossController : MonoBehaviour
 
     private IEnumerator IntroRoar()
     {
+        AudioManager.instance.PlayBossSFX3(skill5Sound);
         yield return new WaitForSeconds(1f);
         GameObject Skill5VFX = Instantiate(Skill5, attackPoint.transform.position, attackPoint.transform.rotation);
         yield return new WaitForSeconds(2f);
@@ -355,6 +370,7 @@ public class BossController : MonoBehaviour
         isAttacking = true;
         currentState = CharacterState.Attack;
         // Add your attack logic here
+        AudioManager.instance.PlayBossSFX1(normalAttackSound);
 
         switch (bossAttack)
         {
@@ -604,6 +620,7 @@ public class BossController : MonoBehaviour
                         {
                             StartCoroutine(leftClawController.SwingClaw(lastDirection, true));
                             StartCoroutine(rightClawController.SwingClaw(lastDirection, false));
+                            AudioManager.instance.PlayBossSFX1(skill2Sound);
 
                             Rigidbody2D rb = collider.transform.parent.GetComponent<Rigidbody2D>();
                             if (rb != null)
@@ -848,7 +865,9 @@ public class BossController : MonoBehaviour
     {
         Teleport(new Vector3(0, 0, 0));
         isSpecialAttack = false;
-        yield return new WaitForSeconds(2f);
+        yield return new WaitForSeconds(1f);
+        AudioManager.instance.PlayBossSFX3(skill5Sound);
+        yield return new WaitForSeconds(1f);
         ChasePlayer();
         // Instantiate the Skill5 visual effect
         GameObject Skill5VFX = Instantiate(Skill5, attackPoint.transform.position, attackPoint.transform.rotation);
@@ -997,8 +1016,17 @@ public class BossController : MonoBehaviour
 
     public void TakeDamage(float damage)
     {
+        if(playerController.isDied)
+        {
+            damage = 0;
+        }
         CurrentHP -= damage;
         Debug.Log("Take: " + damage + " Boss HP: " + CurrentHP);
+        if(firstDrop)
+        {
+            DropCoinEvent();
+            firstDrop = false;
+        }
         // DropCoin
         var currentHpPercent = currentHP / maxHP * 100;
         if (currentHpPercent <= lastPercentTage - 10f)
@@ -1029,6 +1057,29 @@ public class BossController : MonoBehaviour
         {
             Debug.Log("Boss Defeated");
             Destroy(gameObject);
+            isDied = true;
+
+            // Deactivate all objects with the "CoinObj" tag
+            DeactivateCoinObjects();
+
+            if (!playerController.isDied)
+            {
+                DialogManager.instance.PlayBossDefeatedDialog();
+
+                if (BossDefeated != null)
+                {
+                    BossDefeated();
+                }
+            }
+        }
+    }
+
+    private void DeactivateCoinObjects()
+    {
+        GameObject[] coinObjects = GameObject.FindGameObjectsWithTag("CoinObj");
+        foreach (GameObject coinObject in coinObjects)
+        {
+            coinObject.SetActive(false);
         }
     }
 

@@ -25,6 +25,7 @@ public class StatManager : MonoBehaviour
     private void Awake()
     {
         Instance = this;
+        DialogManager.instance.PlayIntroDialog();
     }
     string GetFilePath()
     {

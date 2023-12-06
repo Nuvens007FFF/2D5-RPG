@@ -52,9 +52,6 @@ public class HealthManager : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            TakeDamage(5f);
-        }
+
     }
 }

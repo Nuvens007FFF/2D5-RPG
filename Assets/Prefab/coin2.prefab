@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 507822465410919165}
   m_Layer: 0
   m_Name: coin2
-  m_TagString: Untagged
+  m_TagString: CoinObj
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -97,7 +97,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: afea8d56a19729f49b6ecc4398f751c1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  coinAmount: 200
+  coinAmount: 100
   flySpeed: 12.26
   radius: 3.06
 --- !u!58 &2657440113839330189

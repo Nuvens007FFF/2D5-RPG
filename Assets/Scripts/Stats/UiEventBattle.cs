@@ -1,5 +1,4 @@
-
-using System;
+﻿using System;
 using System.Collections;
 using TMPro;
 using UnityEngine;
@@ -8,21 +7,38 @@ public class UiEventBattle : MonoBehaviour
 {
     public static event Action animationCoinEvent;
     public GameObject pannelSummary;
-    public TextMeshProUGUI  coinIndex;
+    public TextMeshProUGUI coinIndex;
+
+    public AudioClip VictoryTheme;
+    public AudioClip LoseTheme;
+
     private void Start()
     {
-        HealthManager.CharacterDied += SwitchPannelSummary;
+        HealthManager.CharacterDied += HandlePlayerDefeated;
         CoinSystem.CoinUpdatedUI += CoinTextUpdate;
-    }
-    void SwitchPannelSummary()
-    {
-        Debug.Log("SwitchPannelSummary");
-        StartCoroutine(OpenSummary());
+        BossController.BossDefeated += HandleBossDefeated;
     }
 
-    private IEnumerator OpenSummary()
+    void HandlePlayerDefeated()
     {
-        yield return new WaitForSeconds(2f);
+        Debug.Log("SwitchPannelSummary");
+        UpdateSummaryText("Thất Bại");
+        AudioManager.instance.PlayMusic(LoseTheme, 1f);
+        StartCoroutine(OpenSummary(2f));
+    }
+
+    private void HandleBossDefeated()
+    {
+        // Handle actions when the boss is defeated
+        Debug.Log("Boss is defeated!");
+        UpdateSummaryText("Chiến Thắng");
+        AudioManager.instance.PlayMusic(VictoryTheme, 1f);
+        StartCoroutine(OpenSummary(7f));
+    }
+
+    private IEnumerator OpenSummary(float delayTime)
+    {
+        yield return new WaitForSeconds(delayTime);
         if (pannelSummary != null)
         {
             pannelSummary.gameObject.SetActive(true);
@@ -32,11 +48,23 @@ public class UiEventBattle : MonoBehaviour
     void CoinTextUpdate(float coinInBattle)
     {
         coinIndex.text = coinInBattle.ToString();
-        if(animationCoinEvent != null) { animationCoinEvent(); }
+        if (animationCoinEvent != null) { animationCoinEvent(); }
     }
+
+    private void UpdateSummaryText(string text)
+    {
+        // Assuming you have a TextMeshProUGUI component on the pannelSummary object
+        TextMeshProUGUI summaryText = pannelSummary.GetComponentInChildren<TextMeshProUGUI>();
+        if (summaryText != null)
+        {
+            summaryText.text = text;
+        }
+    }
+
     private void OnDestroy()
     {
-        HealthManager.CharacterDied -= SwitchPannelSummary;
+        HealthManager.CharacterDied -= HandlePlayerDefeated;
         CoinSystem.CoinUpdatedUI -= CoinTextUpdate;
+        BossController.BossDefeated -= HandleBossDefeated;
     }
 }

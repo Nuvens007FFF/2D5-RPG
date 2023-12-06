@@ -52,6 +52,4 @@ public class SkillManager<T> : MonoBehaviour where T : SkillUpgradeBase, new()
         upgraded = true;
         SaveSkillUpgradeSkill();
     }
-
-
 }

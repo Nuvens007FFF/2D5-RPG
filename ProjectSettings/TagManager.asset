@@ -17,6 +17,8 @@ TagManager:
   - Destroyable
   - Land
   - Bush
+  - CoinObj
+  - BossCenter
   layers:
   - Default
   - TransparentFX

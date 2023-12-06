@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6787219096186585654}
   - component: {fileID: 7380651149561562777}
+  - component: {fileID: 50874840775929910}
   m_Layer: 0
   m_Name: FireMarkExplosion
   m_TagString: Untagged
@@ -45,6 +46,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   destroyDelay: 1
+--- !u!114 &50874840775929910
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5431137497914662649}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5620dc7e64505fd45b7d182103cfbfde, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  skillActivationSound: {fileID: 8300000, guid: 2b89d71b6c4985f47a99527cf2f164b3, type: 3}
 --- !u!1001 &6592600632780592744
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -9748,6 +9748,7 @@ GameObject:
   - component: {fileID: 8758592874657769155}
   - component: {fileID: 41102900313290623}
   - component: {fileID: -9070534607569197190}
+  - component: {fileID: -6445777022360236523}
   m_Layer: 0
   m_Name: WaterBigSplash
   m_TagString: Destroyable
@@ -9816,6 +9817,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   destroyDelay: 1.5
+--- !u!114 &-6445777022360236523
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2221292687539484520}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d616ae5fb8b5a7745a29b36f6df7605e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  skillActivationSound: {fileID: 8300000, guid: aa15a11997377e248977256c62eb63f4, type: 3}
+  delay: 0.75
 --- !u!1001 &1745784183290918117
 PrefabInstance:
   m_ObjectHideFlags: 0

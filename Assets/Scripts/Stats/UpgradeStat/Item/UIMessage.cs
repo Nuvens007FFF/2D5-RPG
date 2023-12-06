@@ -7,6 +7,7 @@ public class UIMessage : MonoBehaviour
     public TextMeshProUGUI message_tmp;
     [SerializeField] private float duration = 0.5f;
     public Vector3 punchVector = new Vector3(9,15,0);
+    private Vector3 originalPosition;
 
     private void Start()
     {
@@ -17,6 +18,8 @@ public class UIMessage : MonoBehaviour
         LevelSkillEManager.MessageEvent_E += TakeMessage;
         LevelSkillWManager.MessageEvent_W += TakeMessage;
         LevelSkillRManager.MessageEvent_R += TakeMessage;
+
+        originalPosition = message_tmp.transform.position;
     }
         private void OnDestroy()
     {
@@ -38,5 +41,6 @@ public class UIMessage : MonoBehaviour
     void OfMessage()
     {
         message_tmp.text = null;
+        message_tmp.transform.position = originalPosition;
     }
 }

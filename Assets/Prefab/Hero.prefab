@@ -19484,7 +19484,7 @@ Transform:
   m_GameObject: {fileID: 3783285023837275768}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.35, y: 0.35, z: 0.35}
+  m_LocalScale: {x: 0.26, y: 0.26, z: 0.26}
   m_Children:
   - {fileID: 3783285024725770451}
   - {fileID: 7632161692598050728}
@@ -19518,7 +19518,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 0f9bc9fbedc571b4fb211b3ac6222ca8, type: 2}
+  - {fileID: 2100000, guid: d63410e3d6bde2a409d74744eb75069c, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -19552,7 +19552,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d247ba06193faa74d9335f5481b2b56c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  skeletonDataAsset: {fileID: 11400000, guid: c59e9c6811ff87542825c5ce5fbddac1, type: 2}
+  skeletonDataAsset: {fileID: 11400000, guid: 577090126b9cc414a96ca6fd76b14f91, type: 2}
   initialSkinName: 
   fixPrefabOverrideViaMeshFilter: 2
   initialFlipX: 0
@@ -19568,7 +19568,7 @@ MonoBehaviour:
   singleSubmesh: 0
   fixDrawOrder: 0
   addNormals: 0
-  calculateTangents: 0
+  calculateTangents: 1
   maskInteraction: 0
   maskMaterials:
     materialsMaskDisabled: []
@@ -19577,7 +19577,7 @@ MonoBehaviour:
   disableRenderingOnOverride: 1
   updateTiming: 1
   unscaledTime: 0
-  _animationName: front_idle
+  _animationName: back_idle
   loop: 1
   timeScale: 1
 --- !u!1 &3783285023858500581
@@ -19727,7 +19727,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &3783285024725770451
 Transform:
   m_ObjectHideFlags: 0
@@ -25117,15 +25117,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6423666203348373026, guid: a58aa9a78f2b45b45bb0f3e2e1e3ad3c, type: 3}
       propertyPath: m_LocalScale.x
-      value: 1.4285713
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 6423666203348373026, guid: a58aa9a78f2b45b45bb0f3e2e1e3ad3c, type: 3}
       propertyPath: m_LocalScale.y
-      value: 1.4285713
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 6423666203348373026, guid: a58aa9a78f2b45b45bb0f3e2e1e3ad3c, type: 3}
       propertyPath: m_LocalScale.z
-      value: 1.4285713
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 6423666203348373026, guid: a58aa9a78f2b45b45bb0f3e2e1e3ad3c, type: 3}
       propertyPath: m_LocalPosition.x
@@ -25312,6 +25312,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 2646036336147081736, guid: 7e03da6edfc950541a3852ecbc721729, type: 3}
+    - {fileID: 7610677041972966215, guid: 7e03da6edfc950541a3852ecbc721729, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 7e03da6edfc950541a3852ecbc721729, type: 3}
 --- !u!4 &5585669423232835339 stripped
 Transform:

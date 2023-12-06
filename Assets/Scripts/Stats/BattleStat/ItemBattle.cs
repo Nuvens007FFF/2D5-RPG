@@ -25,18 +25,23 @@ public class ItemBattle : MonoBehaviour
     public Text item1CDText;
     public Text item2CDText;
 
+    private GameObject player;
+    private PlayerController playerController;
+
     private void Start()
     {
         FileManager();
+        player = GameObject.FindWithTag("Player");
+        playerController = player.GetComponent<PlayerController>();
     }
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Alpha1) && _potionAmount > 0 && Time.time - _lastHPPotionUseTime >= _potionCooldown) 
+        if (Input.GetKeyDown(KeyCode.Alpha1) && _potionAmount > 0 && Time.time - _lastHPPotionUseTime >= _potionCooldown && !playerController.isDied) 
         {
             UsePotion();
         }
-        else if (Input.GetKeyDown(KeyCode.Alpha2) && _manaAmount > 0f && Time.time - _lastMPPotionUseTime >= _potionCooldown) 
+        else if (Input.GetKeyDown(KeyCode.Alpha2) && _manaAmount > 0f && Time.time - _lastMPPotionUseTime >= _potionCooldown && !playerController.isDied) 
         { 
             UseManaItem(); 
         }

@@ -56,14 +56,7 @@ public class ManaManager : HealthManager
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            MinusMana(5f);
-        }
-        if (Input.GetKeyDown(KeyCode.LeftShift))
-        {
-            PlusMana(3f);
-        }
+
     }
 }
    

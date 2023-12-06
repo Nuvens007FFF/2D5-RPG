@@ -219,6 +219,11 @@ MonoBehaviour:
   maxHP: 15000
   healthBarImage: {fileID: 0}
   energyBarImage: {fileID: 0}
+  isDied: 0
+  normalAttackSound: {fileID: 8300000, guid: 2d9de486dbb494c40a52e3a4a36c922a, type: 3}
+  skill2Sound: {fileID: 8300000, guid: a99459a3af6443b4a9a50ca07b3c290f, type: 3}
+  skill5Sound: {fileID: 8300000, guid: 3b7bc5ba1f5481a4093fa50bdb044c52, type: 3}
+  bossTheme: {fileID: 8300000, guid: ee5584caa570f8644bcb68a3c03d26a2, type: 3}
   skeletonAnimation: {fileID: 2285748670135807324}
   playerTransform: {fileID: 0}
   land: {fileID: 3074822676470576492, guid: 0620cb66c0dfb7e44afbe5221fbd8e20, type: 3}
@@ -244,8 +249,9 @@ MonoBehaviour:
   Skill6: {fileID: 3026375341740029760, guid: 9f31d664fbeb45a4cb97912f6e519d7c, type: 3}
   Skill6Buff: {fileID: 7055555302210276302}
   Skill6Spirit: {fileID: 6834157521169462861, guid: 87c8766f033fe40449c99d11809aa631, type: 3}
+  BlackMask: {fileID: 7325671883810993113, guid: aab70149afd5af945920975823d7e1f6, type: 3}
   normalAttackDamage: 5
-  skill1Dmg: 10
+  skill1Dmg: 5
   skill2Dmg: 50
   skill2CD: 10
   skill3ATKSPD: 0.5
@@ -879,7 +885,7 @@ GameObject:
   - component: {fileID: 4691239244260758221}
   m_Layer: 0
   m_Name: Center
-  m_TagString: Untagged
+  m_TagString: BossCenter
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

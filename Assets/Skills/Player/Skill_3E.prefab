@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 213032802008945340}
   - component: {fileID: 6644906206703314489}
+  - component: {fileID: -8319271655290626754}
   m_Layer: 0
   m_Name: Skill_3E
   m_TagString: Untagged
@@ -25,7 +26,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8650749082556200340}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.25748438, y: 1.7923442, z: -24.588133}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 8370469113922061630}
@@ -45,6 +46,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   destroyDelay: 0.8
+--- !u!114 &-8319271655290626754
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8650749082556200340}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d050af4540ef7b24ea877bcc831586ec, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  skillActivationSound: {fileID: 8300000, guid: 096485282ef34664182aa74882dae9d3, type: 3}
 --- !u!1001 &1105034109336637870
 PrefabInstance:
   m_ObjectHideFlags: 0

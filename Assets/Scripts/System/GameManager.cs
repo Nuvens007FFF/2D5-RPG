@@ -5,6 +5,7 @@ public class GameManager : MonoBehaviour
 {
     public GameObject[] prefabsToLoad;
 
+    private GameObject bossPrefabInstance;
     void Start()
     {
         LoadPrefabs();
@@ -23,7 +24,7 @@ public class GameManager : MonoBehaviour
                 }
                 else if (prefab.CompareTag("BossObject"))
                 {
-                    Instantiate(prefab, new Vector3(0f, 3f, 0f), Quaternion.identity);
+                    bossPrefabInstance = Instantiate(prefab, new Vector3(0f, 3f, 0f), Quaternion.identity);
                 }
                 else
                 {
