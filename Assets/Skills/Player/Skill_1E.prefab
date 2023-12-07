@@ -144,7 +144,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6258161306040215823, guid: 9d46471bc7f04ad419e8a90208617f4f, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: 0.05
       objectReference: {fileID: 0}
     - target: {fileID: 6258161306040215823, guid: 9d46471bc7f04ad419e8a90208617f4f, type: 3}
       propertyPath: m_LocalPosition.y
@@ -258,6 +258,34 @@ PrefabInstance:
     - target: {fileID: 6258161306040215821, guid: 9d46471bc7f04ad419e8a90208617f4f, type: 3}
       propertyPath: m_SortingOrder
       value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: 6258161306040215822, guid: 9d46471bc7f04ad419e8a90208617f4f, type: 3}
+      propertyPath: ColorModule.enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6258161306040215822, guid: 9d46471bc7f04ad419e8a90208617f4f, type: 3}
+      propertyPath: ColorModule.gradient.maxGradient.ctime2
+      value: 57335
+      objectReference: {fileID: 0}
+    - target: {fileID: 6258161306040215822, guid: 9d46471bc7f04ad419e8a90208617f4f, type: 3}
+      propertyPath: ColorModule.gradient.maxGradient.key0.b
+      value: 0.3726415
+      objectReference: {fileID: 0}
+    - target: {fileID: 6258161306040215822, guid: 9d46471bc7f04ad419e8a90208617f4f, type: 3}
+      propertyPath: ColorModule.gradient.maxGradient.key0.g
+      value: 0.7031852
+      objectReference: {fileID: 0}
+    - target: {fileID: 6258161306040215822, guid: 9d46471bc7f04ad419e8a90208617f4f, type: 3}
+      propertyPath: ColorModule.gradient.maxGradient.key2.b
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6258161306040215822, guid: 9d46471bc7f04ad419e8a90208617f4f, type: 3}
+      propertyPath: ColorModule.gradient.maxGradient.key2.g
+      value: 0.5668078
+      objectReference: {fileID: 0}
+    - target: {fileID: 6258161306040215822, guid: 9d46471bc7f04ad419e8a90208617f4f, type: 3}
+      propertyPath: ColorModule.gradient.maxGradient.key2.r
+      value: 0.41037738
       objectReference: {fileID: 0}
     - target: {fileID: 6258161306040215823, guid: 9d46471bc7f04ad419e8a90208617f4f, type: 3}
       propertyPath: m_RootOrder

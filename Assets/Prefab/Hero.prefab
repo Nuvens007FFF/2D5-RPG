@@ -19904,7 +19904,7 @@ MonoBehaviour:
   manaCostW: 50
   manaCostE: 20
   manaCostR: 0
-  comboTime: 1
+  comboTime: 1.25
   attackCooldown: 1
   skill1Damage: 10
   skill1Cooldown: 1.5

@@ -16,6 +16,7 @@ public class DifficultManager : MonoBehaviour
     private GameObject buttonStart;
     public GameObject buttonrealStart;
 
+    public Button hardMode;
     public Button normalMode;
     public Button easyMode;
 
@@ -55,21 +56,31 @@ public class DifficultManager : MonoBehaviour
     void SetButtonState()
     {
         // Set the interactable state of buttons based on difficultID
-        if (difficultID == 2)
+        if (difficultID == 3)
         {
-            ChangeButtonColor(normalMode, Color.yellow);
+            ChangeButtonColor(hardMode, Color.yellow);
+            ChangeButtonColor(normalMode, Color.white);
             ChangeButtonColor(easyMode, Color.white);
             diffInfo.text = "Niên Thú ở trạng thái mạnh nhất";
+        }
+        if (difficultID == 2)
+        {
+            ChangeButtonColor(easyMode, Color.white);
+            ChangeButtonColor(normalMode, Color.yellow);
+            ChangeButtonColor(hardMode, Color.white);
+            diffInfo.text = "Sinh Lực và Công Kích các đòn cận chiến của Niên Thú yếu đi 50%";
         }
         if (difficultID == 1)
         {
             ChangeButtonColor(easyMode, Color.yellow);
             ChangeButtonColor(normalMode, Color.white);
-            diffInfo.text = "Sinh Lực và Công Kích các đòn cận chiến của Niên Thú yếu đi 50%";
+            ChangeButtonColor(hardMode, Color.white);
+
+            diffInfo.text = "Sinh Lực và Công Kích các đòn cận chiến của Niên Thú yếu đi 75%";
         }
 
         // Set the interactable state of buttonStart based on difficultID
-        buttonrealStart.GetComponent<Button>().interactable = (difficultID == 1 || difficultID == 2);
+        buttonrealStart.GetComponent<Button>().interactable = (difficultID == 1 || difficultID == 2 || difficultID == 3);
     }
 
     void ChangeButtonColor(Button button, Color color)
@@ -109,9 +120,9 @@ public class DifficultManager : MonoBehaviour
     public void ChooseDifficult(int difficult)
     {
         Debug.Log("difficult = " + difficult);
-        if (difficult == 1 || difficult == 2)
+        if (difficult == 1 || difficult == 2 || difficult == 3)
         {
-            Debug.Log(difficult == 1 ? "easy" : "normal");
+            //Debug.Log(difficult == 1 ? "easy" : "normal");
             difficultID = difficult;
             SaveFile();
 

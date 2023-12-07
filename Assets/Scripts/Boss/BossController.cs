@@ -22,6 +22,7 @@ public class BossController : MonoBehaviour
     public Image healthBarImage;
     public Image energyBarImage;
     private int difficult = 0;
+    private int numberOfBombs = 25;
     public bool isDied = false;
 
     public AudioClip normalAttackSound;
@@ -138,10 +139,25 @@ public class BossController : MonoBehaviour
 
         // Initialize difficult
         difficult = UpdateStatCharacter.instance.Difficult;
-        maxHP = maxHP * difficult;
 
-        normalAttackDamage = normalAttackDamage * difficult;
-        skill2Dmg = skill2Dmg * difficult;
+        if (difficult == 1)
+        {
+            numberOfBombs = 20;
+        }
+        if (difficult == 2)
+        {
+            numberOfBombs = 25;
+            maxHP = maxHP * 2f;
+            normalAttackDamage = normalAttackDamage * 2f;
+            skill2Dmg = skill2Dmg * 2f;
+        }
+        if (difficult == 3)
+        {
+            numberOfBombs = 25;
+            maxHP = maxHP * 4f;
+            normalAttackDamage = normalAttackDamage * 4f;
+            skill2Dmg = skill2Dmg * 4f;
+        }
 
         // Initialize currentHP to maxHP
         currentHP = maxHP;
@@ -465,7 +481,7 @@ public class BossController : MonoBehaviour
     private void UseSkill1()
     {
         // Editable parameters
-        int numberOfBombs = 25; // Adjust the number of bombs
+         // Adjust the number of bombs
         float gridSize = 2.5f; // Editable grid size
 
         List<Vector2> bombPositions = new List<Vector2>();
@@ -1029,10 +1045,19 @@ public class BossController : MonoBehaviour
         }
         // DropCoin
         var currentHpPercent = currentHP / maxHP * 100;
-        if (currentHpPercent <= lastPercentTage - 10f)
+        float hpDrop = 5f;
+        if(difficult == 2) // Normal
+        {
+            hpDrop *= 2;
+        }
+        if (difficult == 1) // Easy
+        {
+            hpDrop *= 5;
+        }
+        if (currentHpPercent <= lastPercentTage - hpDrop)
         {
             if (DropCoinEvent != null) DropCoinEvent();
-            lastPercentTage -= 10f;
+            lastPercentTage -= hpDrop;
         }
 
         // Play the particle system

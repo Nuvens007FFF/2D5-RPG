@@ -98,6 +98,18 @@ PrefabInstance:
       propertyPath: m_Name
       value: Fire Slash (Projectile)
       objectReference: {fileID: 0}
+    - target: {fileID: 6258161306040215822, guid: 9d46471bc7f04ad419e8a90208617f4f, type: 3}
+      propertyPath: ColorModule.enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6258161306040215822, guid: 9d46471bc7f04ad419e8a90208617f4f, type: 3}
+      propertyPath: ColorModule.gradient.maxGradient.key0.b
+      value: 0.3726415
+      objectReference: {fileID: 0}
+    - target: {fileID: 6258161306040215822, guid: 9d46471bc7f04ad419e8a90208617f4f, type: 3}
+      propertyPath: ColorModule.gradient.maxGradient.key0.g
+      value: 0.7031852
+      objectReference: {fileID: 0}
     - target: {fileID: 6258161306040215823, guid: 9d46471bc7f04ad419e8a90208617f4f, type: 3}
       propertyPath: m_RootOrder
       value: 0

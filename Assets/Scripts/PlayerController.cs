@@ -428,6 +428,7 @@ public class PlayerController : MonoBehaviour
         // Press R to use Skill_4
         if (Input.GetKeyDown(KeyCode.R) && allowSkill4 && !isAttacking && UnlockSkill4 && !bossDied)
         {
+            skillUI.SkillRUsed();
             UseSkill_4();
         }
         else if(Input.GetKeyDown(KeyCode.R) && !allowSkill4)
@@ -1214,7 +1215,7 @@ public class PlayerController : MonoBehaviour
         //Deal damage at the end
         float bossDamageDuringSkill4 = skill4CurrentBossHP - currentBossHP;
         Debug.Log("Skill 4 Boss Hp Info:" + skill4CurrentBossHP + " - " + currentBossHP + " = " + bossDamageDuringSkill4);
-        bossNianController.TakeDamage(bossDamageDuringSkill4 * 0.5f);
+        bossNianController.TakeDamage(10f + (bossDamageDuringSkill4 * 0.5f));
         GameObject skillInstance4 = Instantiate(FireMarkExplosion, bossNian.transform.position, Quaternion.identity);
         Transform centerTransform = bossNian.transform.Find("AttackPoint/Center");
         skillInstance4.transform.localPosition = centerTransform.position;

@@ -11,6 +11,8 @@ public class SkillUIManager : MonoBehaviour
     public Button skillR;
     public GameObject skillQ2;
     public GameObject skillE2;
+    public GameObject activeW;
+    public GameObject activeR;
     public GameObject PauseUI;
     private GameObject pausePrefab;
 
@@ -29,8 +31,12 @@ public class SkillUIManager : MonoBehaviour
 
     private float skillQTimer;
     private float skillWTimer;
+    private float skillWDuration;
+    private float skillWDurationTimer;
     private float skillETimer;
     public float skillREnergy;
+    private float skillRDuration;
+    private float skillRDurationTimer;
     public Text skillQCooldownText;
     public Text skillWCooldownText;
     public Text skillECooldownText;
@@ -41,8 +47,12 @@ public class SkillUIManager : MonoBehaviour
     {
         skillQTimer = 0f;
         skillWTimer = 0f;
+        skillWDurationTimer = 0f;
         skillETimer = 0f;
         skillREnergy = 0f;
+        skillRDurationTimer = 0f;
+        skillRDuration = 20f;
+        skillWDuration = UpdateStatCharacter.instance.DurationW;
         skillQCooldown = UpdateStatCharacter.instance.CoolDownQ;
         skillECooldown = UpdateStatCharacter.instance.CoolDownE;
         UnlockSkill4 = UpdateStatCharacter.instance.UnLockSkillR;
@@ -54,6 +64,7 @@ public class SkillUIManager : MonoBehaviour
         UpdateCooldowns();
         UpdateCooldownText();
         UpdateSkillCombo();
+        UpdateDuration();
         if (Input.GetKeyDown(KeyCode.Tab) && !isGameOver)
         {
             TogglePause();
@@ -68,9 +79,25 @@ public class SkillUIManager : MonoBehaviour
 
         // Update button interactability based on cooldowns
         skillQ.interactable = skillQTimer <= 0f;
-        skillW.interactable = skillWTimer <= 0f;
+        skillW.interactable = skillWTimer <= 0f || skillWDurationTimer > 0;
         skillE.interactable = skillETimer <= 0f;
         skillR.interactable = (isRready && UnlockSkill4);
+        activeW.SetActive(skillWDurationTimer > 0);
+        activeR.SetActive(skillRDurationTimer > 0);
+    }
+
+    void UpdateDuration()
+    {
+        if (skillWDurationTimer > 0)
+        {
+            skillWDurationTimer -= Time.deltaTime;
+            skillWCooldownText.text = skillWDurationTimer.ToString("F1");
+        }
+        if (skillRDurationTimer > 0)
+        {
+            skillRDurationTimer -= Time.deltaTime;
+            skillREnergyText.text = skillRDurationTimer.ToString("F1");
+        }
     }
 
     void UpdateSkillCombo()
@@ -97,7 +124,10 @@ public class SkillUIManager : MonoBehaviour
     {
         // Display the remaining cooldown time on the skillR button
         skillQCooldownText.text = skillQTimer > 0f ? skillQTimer.ToString("F1") : "";
-        skillWCooldownText.text = skillWTimer > 0f ? skillWTimer.ToString("F1") : "";
+        if (skillWDurationTimer <= 0)
+        {
+            skillWCooldownText.text = skillWTimer > 0f ? skillWTimer.ToString("F1") : "";
+        }
         skillECooldownText.text = skillETimer > 0f ? skillETimer.ToString("F1") : "";
         skillREnergyText.text = skillREnergy < skillRMaxEnergy ? skillREnergy.ToString("F1") : "";
     }
@@ -135,6 +165,7 @@ public class SkillUIManager : MonoBehaviour
     public void SkillWUsed()
     {
         skillWTimer = skillWCooldown;
+        skillWDurationTimer = skillWDuration;
         Debug.Log("W Used");
     }
 
@@ -142,5 +173,11 @@ public class SkillUIManager : MonoBehaviour
     {
         skillETimer = skillECooldown;
         Debug.Log("E Used");
+    }
+
+    public void SkillRUsed()
+    {
+        skillRDurationTimer = skillRDuration;
+        Debug.Log("R Used");
     }
 }
